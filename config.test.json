@@ -1,0 +1,5 @@
+{
+  "appid": "testapp",
+  "secret": "This is a secret string.",
+  "logdir": "/path/to/log/dir"
+}
