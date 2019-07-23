@@ -15,8 +15,7 @@ import (
 type config struct {
 	Appid  string
 	Secret string
-	Logdir   string
-
+	Logdir string
 }
 
 var (
@@ -31,9 +30,9 @@ func main() {
 	app.Name = "pslog_agent"
 	app.Usage = "Agent for ps log"
 
-	app.Flags = []cli.Flag {
+	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name: "config, c",
+			Name:  "config, c",
 			Value: "",
 			Usage: "configuration file path.",
 		},
@@ -43,9 +42,9 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
-			Name:    "start",
-			Usage:   "start app on agent.",
-			Action:  startAction,
+			Name:   "start",
+			Usage:  "start app on agent.",
+			Action: startAction,
 		},
 		{
 			Name:    "list",
@@ -96,25 +95,25 @@ func errHandler(err error) {
 }
 
 func startAction(c *cli.Context) error {
-	fmt.Println(c.String("config"))
-
+	fmt.Println("config")
 
 	return nil
 }
 
 func listAction(c *cli.Context) error {
-	fmt.Println("listAction")
+	fmt.Println("listAction", c)
 	return nil
 }
 
 func stopAction(c *cli.Context) error {
-	fmt.Println("stopAction")
+	fmt.Println("stopAction", c)
 	return nil
 }
 
 func defaultAction(c *cli.Context) error {
 	configFile := c.Args().First()
 	ext := path.Ext(configFile)
+	fmt.Println("222", configFile)
 	if ext == ".json" {
 		conf, err := getConfig(configFile)
 		errHandler(err)
