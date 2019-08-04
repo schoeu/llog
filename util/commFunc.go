@@ -3,6 +3,7 @@ package util
 import (
 	"fmt"
 	"os"
+	"path"
 )
 
 func GetCwd() string {
@@ -25,4 +26,15 @@ func ErrHandler(err error) {
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func GetAbsPath(base, p string) string {
+	if base == "" {
+		base = GetCwd()
+	}
+	if !path.IsAbs(p) {
+		p = path.Join(base, p)
+	}
+	fmt.Println(GetCwd())
+	return p
 }

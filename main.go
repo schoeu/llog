@@ -10,8 +10,8 @@ import (
 
 	"github.com/schoeu/gopsinfo"
 	"github.com/urfave/cli"
-
 	"github.com/schoeu/pslog_agent/util"
+	"github.com/takama/daemon"
 )
 
 type config struct {
@@ -21,8 +21,14 @@ type config struct {
 	Interval int
 }
 
+var (
+	service daemon.Daemon
+)
+
 func main() {
 	app := cli.NewApp()
+
+	service, _ = daemon.New("pslogAgent", "description")
 
 	app.Version = "1.0.0"
 	app.Name = "pslog_agent"
@@ -45,28 +51,34 @@ func main() {
 		},
 		{
 			Name:    "list",
-			Aliases: []string{"l"},
+			Aliases: []string{"ls"},
 			Usage:   "status fro agent.",
 			Action:  listAction,
 		},
 		{
 			Name:    "stop",
-			Aliases: []string{"l"},
 			Usage:   "stop app on agent.",
 			Action:  stopAction,
+		},
+		{
+			Name:    "status",
+			Usage:   "show app status.",
+			Action:  statusAction,
+		},
+		{
+			Name:    "remove",
+			Aliases: []string{"rm"},
+			Usage:   "remove app.",
+			Action:  removeAction,
 		},
 	}
 
 	err := app.Run(os.Args)
-	if err != nil {
-		fmt.Println(err)
-	}
+	util.ErrHandler(err)
 }
 
 func getConfig(p string) (config, error) {
-	if !path.IsAbs(p) {
-		p = path.Join(util.GetHomeDir(), p)
-	}
+	p = util.GetAbsPath(util.GetHomeDir(), p)
 
 	c := config{}
 	data, err := ioutil.ReadFile(p)
@@ -75,10 +87,16 @@ func getConfig(p string) (config, error) {
 	return c, err
 }
 
-func startAction(c *cli.Context) error {
-	fmt.Println("config")
+func removeAction(c *cli.Context) (string, error) {
+	return service.Remove()
+}
 
-	return nil
+func statusAction(c *cli.Context) (string, error) {
+	return service.Status()
+}
+
+func startAction(c *cli.Context)  (string, error) {
+	return service.Start()
 }
 
 func listAction(c *cli.Context) error {
@@ -86,27 +104,27 @@ func listAction(c *cli.Context) error {
 	return nil
 }
 
-func stopAction(c *cli.Context) error {
-	fmt.Println("stopAction", c)
-	return nil
+func stopAction(c *cli.Context)  (string, error) {
+	return service.Stop()
 }
 
 func defaultAction(c *cli.Context) error {
 	configFile := c.Args().First()
-	if !path.IsAbs(configFile) {
-		configFile = path.Join(util.GetCwd(), configFile)
-	}
+	configFile = util.GetAbsPath("", configFile)
 	ext := path.Ext(configFile)
 	if ext == ".json" {
 		conf, err := getConfig(configFile)
 		util.ErrHandler(err)
-		fmt.Println(conf.Appid)
 		psInfoTimer(conf.Interval)
 
-		// get config data: Appid, Secret, Logdir
 	} else {
 		fmt.Println("Invited json file.")
 	}
+
+	status, err := service.Install()
+	util.ErrHandler(err)
+	fmt.Println(status)
+
 	return nil
 }
 
