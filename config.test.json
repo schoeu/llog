@@ -1,5 +1,5 @@
 {
-  "appid": "testapp",
+  "appid": "testApp",
   "secret": "This is a secret string.",
-  "logdir": "/path/to/log/dir"
+  "logdir": "/Users/schoeu/.psinfo.log"
 }

@@ -4,24 +4,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
-	"time"
 
 	"github.com/urfave/cli"
+	"github.com/schoeu/gopsinfo"
 )
 
 type config struct {
 	Appid  string
 	Secret string
 	Logdir string
+	Interval int
 }
-
-var (
-	//interval = 60000
-	interval = 1000
-)
 
 func main() {
 	app := cli.NewApp()
@@ -39,7 +34,6 @@ func main() {
 	}
 
 	app.Action = defaultAction
-
 	app.Commands = []cli.Command{
 		{
 			Name:   "start",
@@ -62,23 +56,35 @@ func main() {
 
 	err := app.Run(os.Args)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
-
 }
 
-func getLog() {
-	defaultLogName := ".psinfo.log"
-	homeDir, err := os.UserHomeDir()
-	errHandler(err)
-	defaultLogFile := path.Join(homeDir, defaultLogName)
-	fmt.Println(defaultLogFile)
-
+func getPsInfo(during int) {
+	psInfo := gopsinfo.GetPsInfo(during)
+	fmt.Println(psInfo)
 }
+
+//func getTailData(val string) {
+//	t, err := tail.TailFile(val, tail.Config{Follow: true})
+//	errHandler(err)
+//	for line := range t.Lines {
+//		fmt.Println(val, "--->", line.Text)
+//	}
+//}
+//
+//func getLogPath(p string) string {
+//	if p == "" {
+//		defaultLogName := ".psinfo.log"
+//		p = path.Join(getHomeDir(), defaultLogName)
+//	}
+//	return p
+//}
 
 func getConfig(p string) (config, error) {
+
 	if !path.IsAbs(p) {
-		p = path.Join(getCwd(), p)
+		p = path.Join(getHomeDir(), p)
 	}
 
 	c := config{}
@@ -113,30 +119,33 @@ func stopAction(c *cli.Context) error {
 func defaultAction(c *cli.Context) error {
 	configFile := c.Args().First()
 	ext := path.Ext(configFile)
-	fmt.Println("222", configFile)
 	if ext == ".json" {
 		conf, err := getConfig(configFile)
 		errHandler(err)
+		fmt.Println(conf.Appid)
+		//conf.Logdir
+		//conf.Secret
 
 		// get config data: Appid, Secret, Logdir
-		fmt.Println("defaultAction", conf.Appid)
+		logPath := getLogPath(conf.Logdir)
+		watcher(logPath)
+
+	} else {
+		fmt.Println("Invited json file.")
 	}
 	return nil
 }
 
-func timer(interval int) {
-	d := time.Duration(time.Millisecond * time.Duration(interval))
-	t := time.NewTicker(d)
-	defer t.Stop()
-
-	for {
-		<-t.C
-		getLog()
-	}
-}
-
 func getCwd() string {
 	dir, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+	return dir
+}
+
+func getHomeDir() string {
+	dir, err := os.UserHomeDir()
 	if err != nil {
 		return ""
 	}
