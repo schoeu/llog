@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/schoeu/gopsinfo"
-	"github.com/urfave/cli"
 	"github.com/schoeu/pslog_agent/util"
-	"github.com/takama/daemon"
+	"github.com/schoeu/pslog_agent/push"
+	"github.com/urfave/cli"
 )
 
 type config struct {
@@ -21,14 +21,8 @@ type config struct {
 	Interval int
 }
 
-var (
-	service daemon.Daemon
-)
-
 func main() {
 	app := cli.NewApp()
-
-	service, _ = daemon.New("pslogAgent", "description")
 
 	app.Version = "1.0.0"
 	app.Name = "pslog_agent"
@@ -48,12 +42,6 @@ func main() {
 			Name:   "start",
 			Usage:  "start app on agent.",
 			Action: startAction,
-		},
-		{
-			Name:    "list",
-			Aliases: []string{"ls"},
-			Usage:   "status fro agent.",
-			Action:  listAction,
 		},
 		{
 			Name:    "stop",
@@ -87,30 +75,28 @@ func getConfig(p string) (config, error) {
 	return c, err
 }
 
-func removeAction(c *cli.Context) (string, error) {
-	return service.Remove()
-}
-
-func statusAction(c *cli.Context) (string, error) {
-	return service.Status()
-}
-
-func startAction(c *cli.Context)  (string, error) {
-	return service.Start()
-}
-
-func listAction(c *cli.Context) error {
-	fmt.Println("listAction", c)
+func removeAction(c *cli.Context) error {
+	fmt.Println("removeAction")
 	return nil
 }
 
-func stopAction(c *cli.Context)  (string, error) {
-	return service.Stop()
+func statusAction(c *cli.Context) error {
+	fmt.Println("statusAction")
+	return nil
+}
+
+func startAction(c *cli.Context) error {
+	fmt.Println("startAction")
+	return nil
+}
+
+func stopAction(c *cli.Context) error {
+	fmt.Println("stopAction")
+	return nil
 }
 
 func defaultAction(c *cli.Context) error {
-	configFile := c.Args().First()
-	configFile = util.GetAbsPath("", configFile)
+	configFile := util.GetAbsPath("", c.Args().First())
 	ext := path.Ext(configFile)
 	if ext == ".json" {
 		conf, err := getConfig(configFile)
@@ -120,10 +106,6 @@ func defaultAction(c *cli.Context) error {
 	} else {
 		fmt.Println("Invited json file.")
 	}
-
-	status, err := service.Install()
-	util.ErrHandler(err)
-	fmt.Println(status)
 
 	return nil
 }
@@ -137,5 +119,6 @@ func psInfoTimer(interval int) {
 		<-t.C
 		psInfo := gopsinfo.GetPsInfo(interval)
 		fmt.Println(psInfo)
+		push.PushData(&psInfo)
 	}
 }

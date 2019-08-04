@@ -35,6 +35,5 @@ func GetAbsPath(base, p string) string {
 	if !path.IsAbs(p) {
 		p = path.Join(base, p)
 	}
-	fmt.Println(GetCwd())
 	return p
 }
