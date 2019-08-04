@@ -9,15 +9,15 @@ import (
 	"time"
 
 	"github.com/schoeu/gopsinfo"
-	"github.com/schoeu/pslog_agent/util"
 	"github.com/schoeu/pslog_agent/push"
+	"github.com/schoeu/pslog_agent/util"
 	"github.com/urfave/cli"
 )
 
-type config struct {
-	Appid  string
-	Secret string
-	Logdir string
+type Config struct {
+	Appid    string
+	Secret   string
+	Logdir   string
 	Interval int
 }
 
@@ -44,14 +44,14 @@ func main() {
 			Action: startAction,
 		},
 		{
-			Name:    "stop",
-			Usage:   "stop app on agent.",
-			Action:  stopAction,
+			Name:   "stop",
+			Usage:  "stop app on agent.",
+			Action: stopAction,
 		},
 		{
-			Name:    "status",
-			Usage:   "show app status.",
-			Action:  statusAction,
+			Name:   "status",
+			Usage:  "show app status.",
+			Action: statusAction,
 		},
 		{
 			Name:    "remove",
@@ -65,10 +65,10 @@ func main() {
 	util.ErrHandler(err)
 }
 
-func getConfig(p string) (config, error) {
+func getConfig(p string) (Config, error) {
 	p = util.GetAbsPath(util.GetHomeDir(), p)
 
-	c := config{}
+	c := Config{}
 	data, err := ioutil.ReadFile(p)
 	err = json.Unmarshal(data, &c)
 
@@ -101,7 +101,7 @@ func defaultAction(c *cli.Context) error {
 	if ext == ".json" {
 		conf, err := getConfig(configFile)
 		util.ErrHandler(err)
-		psInfoTimer(conf.Interval)
+		psInfoTimer(conf)
 
 	} else {
 		fmt.Println("Invited json file.")
@@ -110,15 +110,14 @@ func defaultAction(c *cli.Context) error {
 	return nil
 }
 
-func psInfoTimer(interval int) {
-	d := time.Duration(time.Millisecond * time.Duration(interval))
+func psInfoTimer(conf Config) {
+	d := time.Duration(time.Millisecond * time.Duration(conf.Interval))
 	t := time.NewTicker(d)
 	defer t.Stop()
 
 	for {
 		<-t.C
-		psInfo := gopsinfo.GetPsInfo(interval)
-		fmt.Println(psInfo)
-		push.PushData(&psInfo)
+		psInfo := gopsinfo.GetPsInfo(conf.Interval)
+		push.PushData(&psInfo,  conf.Appid, conf.Secret)
 	}
 }
