@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/schoeu/gopsinfo"
-	"github.com/schoeu/pslog_agent/push"
+	"github.com/schoeu/pslog_agent/agent"
 	"github.com/schoeu/pslog_agent/util"
 	"github.com/urfave/cli"
 )
@@ -118,6 +118,6 @@ func psInfoTimer(conf Config) {
 	for {
 		<-t.C
 		psInfo := gopsinfo.GetPsInfo(conf.Interval)
-		push.PushData(&psInfo,  conf.Appid, conf.Secret)
+		agent.PushData(&psInfo,  conf.Appid, conf.Secret)
 	}
 }
