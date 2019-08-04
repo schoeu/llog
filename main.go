@@ -6,9 +6,12 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"time"
 
-	"github.com/urfave/cli"
 	"github.com/schoeu/gopsinfo"
+	"github.com/urfave/cli"
+
+	"github.com/schoeu/pslog_agent/util"
 )
 
 type config struct {
@@ -60,31 +63,9 @@ func main() {
 	}
 }
 
-func getPsInfo(during int) {
-	psInfo := gopsinfo.GetPsInfo(during)
-	fmt.Println(psInfo)
-}
-
-//func getTailData(val string) {
-//	t, err := tail.TailFile(val, tail.Config{Follow: true})
-//	errHandler(err)
-//	for line := range t.Lines {
-//		fmt.Println(val, "--->", line.Text)
-//	}
-//}
-//
-//func getLogPath(p string) string {
-//	if p == "" {
-//		defaultLogName := ".psinfo.log"
-//		p = path.Join(getHomeDir(), defaultLogName)
-//	}
-//	return p
-//}
-
 func getConfig(p string) (config, error) {
-
 	if !path.IsAbs(p) {
-		p = path.Join(getHomeDir(), p)
+		p = path.Join(util.GetHomeDir(), p)
 	}
 
 	c := config{}
@@ -92,12 +73,6 @@ func getConfig(p string) (config, error) {
 	err = json.Unmarshal(data, &c)
 
 	return c, err
-}
-
-func errHandler(err error) {
-	if err != nil {
-		fmt.Println(err)
-	}
 }
 
 func startAction(c *cli.Context) error {
@@ -118,36 +93,31 @@ func stopAction(c *cli.Context) error {
 
 func defaultAction(c *cli.Context) error {
 	configFile := c.Args().First()
+	if !path.IsAbs(configFile) {
+		configFile = path.Join(util.GetCwd(), configFile)
+	}
 	ext := path.Ext(configFile)
 	if ext == ".json" {
 		conf, err := getConfig(configFile)
-		errHandler(err)
+		util.ErrHandler(err)
 		fmt.Println(conf.Appid)
-		//conf.Logdir
-		//conf.Secret
+		psInfoTimer(conf.Interval)
 
 		// get config data: Appid, Secret, Logdir
-		logPath := getLogPath(conf.Logdir)
-		watcher(logPath)
-
 	} else {
 		fmt.Println("Invited json file.")
 	}
 	return nil
 }
 
-func getCwd() string {
-	dir, err := os.Getwd()
-	if err != nil {
-		return ""
-	}
-	return dir
-}
+func psInfoTimer(interval int) {
+	d := time.Duration(time.Millisecond * time.Duration(interval))
+	t := time.NewTicker(d)
+	defer t.Stop()
 
-func getHomeDir() string {
-	dir, err := os.UserHomeDir()
-	if err != nil {
-		return ""
+	for {
+		<-t.C
+		psInfo := gopsinfo.GetPsInfo(interval)
+		fmt.Println(psInfo)
 	}
-	return dir
 }
