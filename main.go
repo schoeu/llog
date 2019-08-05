@@ -15,9 +15,9 @@ import (
 )
 
 type Config struct {
-	Appid    string
+	AppId    string
 	Secret   string
-	Logdir   string
+	LogDir   string
 	Interval int
 }
 
@@ -118,6 +118,6 @@ func psInfoTimer(conf Config) {
 	for {
 		<-t.C
 		psInfo := gopsinfo.GetPsInfo(conf.Interval)
-		agent.PushData(&psInfo,  conf.Appid, conf.Secret)
+		agent.PushData(&psInfo,  conf.AppId, conf.Secret)
 	}
 }
