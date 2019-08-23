@@ -1,7 +1,6 @@
 package util
 
 import (
-	"fmt"
 	"os"
 	"path"
 )
@@ -24,7 +23,7 @@ func GetHomeDir() string {
 
 func ErrHandler(err error) {
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 }
 
