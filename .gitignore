@@ -12,3 +12,4 @@
 *.out
 
 pslog_agent
+info.go

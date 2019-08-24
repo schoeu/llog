@@ -3,7 +3,6 @@ package util
 import (
 	"fmt"
 	"github.com/schoeu/gopsinfo"
-	"github.com/schoeu/pslog_agent/config"
 	"reflect"
 )
 
@@ -29,7 +28,7 @@ func CombineData(inputVal interface{}, info gopsinfo.PsInfo) map[string]interfac
 		rs[i] = fmt.Sprintf("%.0f", v)
 	}
 
-	rs["version"] = config.Version
+	rs["version"] = Version
 	rs["logId"] = UUID()
 	rs["type"] = "nmAgent"
 

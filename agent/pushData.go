@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/schoeu/pslog_agent/config"
 	"github.com/schoeu/pslog_agent/util"
 )
 
@@ -17,7 +16,7 @@ func PushData(data map[string]interface{}) {
 	d, err := json.Marshal(data)
 	fmt.Println(string(d))
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", config.LogServer, bytes.NewBuffer(d))
+	req, err := http.NewRequest("POST", util.LogServer, bytes.NewBuffer(d))
 	util.ErrHandler(err)
 	req.Header.Set("Content-Type", "application/json")
 

@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/schoeu/pslog_agent/agent"
-	"github.com/schoeu/pslog_agent/config"
 	"github.com/schoeu/pslog_agent/util"
 	"github.com/urfave/cli"
 )
@@ -13,9 +12,9 @@ import (
 func main() {
 	app := cli.NewApp()
 
-	app.Version = config.Version
-	app.Name = config.AppName
-	app.Usage = config.AppUsage
+	app.Version = util.Version
+	app.Name = util.AppName
+	app.Usage = util.AppUsage
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
