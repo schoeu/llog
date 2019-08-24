@@ -1,40 +1,32 @@
 package agent
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
-	"github.com/schoeu/gopsinfo"
-	//"io/ioutil"
-	//"net/http"
-	//"strings"
-	//
-	//"github.com/schoeu/pslog_agent/util"
+	"io/ioutil"
+	"net/http"
+
+	"github.com/schoeu/pslog_agent/config"
+	"github.com/schoeu/pslog_agent/util"
 )
 
-type logData map[string]string
-
-func PushData(data *gopsinfo.PsInfo, appId, secret,nodeInfo string) {
+func PushData(data map[string]interface{}) {
 	// TODO: 数据传输
-	fmt.Println("data-> ", data, appId, secret, nodeInfo)
 
-	//dataProc(data, appId, secret, nodeInfo)
-	//
-	//client := &http.Client{}
-	//
-	//req, err := http.NewRequest("POST", "http:////nlogtj.zuoyebang.cc/log/performance", strings.NewReader(""))
-	//util.ErrHandler(err)
-	//req.Header.Set("Content-Type", "application/json")
-	//
-	//
-	//resp, err := client.Do(req)
-	//util.ErrHandler(err)
-	//defer resp.Body.Close()
-	//
-	//body, err := ioutil.ReadAll(resp.Body)
-	//util.ErrHandler(err)
-	//
-	//fmt.Println(string(body))
-}
+	d, err := json.Marshal(data)
+	fmt.Println(string(d))
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", config.LogServer, bytes.NewBuffer(d))
+	util.ErrHandler(err)
+	req.Header.Set("Content-Type", "application/json")
 
-func dataProc(data *gopsinfo.PsInfo, appId, secret,nodeInfo string) {
+	resp, err := client.Do(req)
+	util.ErrHandler(err)
+	defer resp.Body.Close()
 
+	body, err := ioutil.ReadAll(resp.Body)
+	util.ErrHandler(err)
+
+	fmt.Println(string(body))
 }
