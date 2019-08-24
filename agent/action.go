@@ -3,11 +3,13 @@ package agent
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+
 	"github.com/hpcloud/tail"
 	"github.com/schoeu/gopsinfo"
-	"github.com/schoeu/pslog_agent/util"
+	"github.com/schoeu/nma/util"
 	"github.com/urfave/cli"
-	"io"
+
 )
 
 func StartAction(c *cli.Context) error {

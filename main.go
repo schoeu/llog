@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/schoeu/pslog_agent/agent"
-	"github.com/schoeu/pslog_agent/util"
+	"github.com/schoeu/nma/agent"
+	"github.com/schoeu/nma/util"
 	"github.com/urfave/cli"
 )
 

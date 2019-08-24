@@ -1,2 +1,2 @@
-# pslog_agent
-Agent for pslog
+# nma
+Log agent for node monitor.

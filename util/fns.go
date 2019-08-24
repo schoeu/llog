@@ -2,17 +2,15 @@ package util
 
 import (
 	"encoding/json"
-	"github.com/satori/go.uuid"
 	"io/ioutil"
 	"os"
 	"path"
+
+	"github.com/satori/go.uuid"
 )
 
 type Config struct {
-	AppId    string
-	Secret   string
 	LogDir   string
-	Interval int
 }
 
 func GetCwd() string {

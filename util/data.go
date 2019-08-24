@@ -25,7 +25,12 @@ func CombineData(inputVal interface{}, info gopsinfo.PsInfo) map[string]interfac
 	}
 
 	for i, v := range fieldVal {
-		rs[i] = fmt.Sprintf("%.0f", v)
+		t := reflect.TypeOf(v).String()
+		if t == "string" {
+			rs[i] = v
+		} else if t == "float64" {
+			rs[i] = fmt.Sprintf("%.0f", v)
+		}
 	}
 
 	rs["version"] = Version

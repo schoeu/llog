@@ -1,4 +1,4 @@
-module github.com/schoeu/pslog_agent
+module github.com/schoeu/nma
 
 go 1.12
 
