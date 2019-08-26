@@ -11,7 +11,6 @@ import (
 
 func main() {
 	app := cli.NewApp()
-
 	app.Version = util.Version
 	app.Name = util.AppName
 	app.Usage = util.AppUsage

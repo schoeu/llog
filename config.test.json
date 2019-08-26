@@ -1,6 +1,4 @@
 {
-  "appid": "testApp",
-  "secret": "This is a secret string.",
-  "logdir": "/Users/schoeu/Downloads/git/nm/test/nm_log",
-  "interval": 2000
+  "logdir1": "/Users/schoeu/Downloads/git/nm/test/nm_log",
+  "noSysInfo": true
 }

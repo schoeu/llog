@@ -10,7 +10,8 @@ import (
 )
 
 type Config struct {
-	LogDir   string
+	LogDir    string
+	NoSysInfo bool
 }
 
 func GetCwd() string {
@@ -50,7 +51,7 @@ func UUID() string {
 }
 
 func GetConfig(p string) (Config, error) {
-	p = GetAbsPath(GetHomeDir(), p)
+	p = GetAbsPath(GetCwd(), p)
 
 	c := Config{}
 	data, err := ioutil.ReadFile(p)

@@ -4,28 +4,37 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
+	"path"
 
 	"github.com/hpcloud/tail"
 	"github.com/schoeu/gopsinfo"
 	"github.com/schoeu/nma/util"
 	"github.com/urfave/cli"
-
 )
 
 func StartAction(c *cli.Context) error {
-	configFile := util.GetAbsPath("", c.Args().First())
+	configFile := util.GetAbsPath(util.GetCwd(), c.Args().First())
 	conf, err := util.GetConfig(configFile)
-	t, err := tail.TailFile(conf.LogDir, tail.Config{
+	logFile := conf.LogDir
+	if logFile == "" {
+		logFileDir, _ := os.UserHomeDir()
+		logFile = path.Join(logFileDir, ".nm.log")
+	}
+	t, err := tail.TailFile(logFile, tail.Config{
 		Location: &tail.SeekInfo{
 			Whence: io.SeekEnd,
 		},
 		Follow: true,
 	})
 	for line := range t.Lines {
-		psInfo := gopsinfo.GetPsInfo(100)
+		var psInfo gopsinfo.PsInfo
+		if !conf.NoSysInfo {
+			psInfo = gopsinfo.GetPsInfo(500)
+		}
 		var nodeInfo interface{}
 		err = json.Unmarshal([]byte(line.Text), &nodeInfo)
-		combineRs := util.CombineData(nodeInfo, psInfo)
+		combineRs := util.CombineData(nodeInfo, psInfo, conf.NoSysInfo)
 		PushData(combineRs)
 	}
 	return err
