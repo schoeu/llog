@@ -19,7 +19,7 @@ func StartAction(c *cli.Context) error {
 	logFile := conf.LogDir
 	if logFile == "" {
 		logFileDir, _ := os.UserHomeDir()
-		logFile = path.Join(logFileDir, ".nm.log")
+		logFile = path.Join(logFileDir, util.LogFileName)
 	}
 	t, err := tail.TailFile(logFile, tail.Config{
 		Location: &tail.SeekInfo{

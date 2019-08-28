@@ -2,9 +2,10 @@ package util
 
 import (
 	"fmt"
-	"github.com/schoeu/gopsinfo"
 	"reflect"
 	"strings"
+
+	"github.com/schoeu/gopsinfo"
 )
 
 func CombineData(inputVal interface{}, info gopsinfo.PsInfo, noSysInfo bool) map[string]interface{} {
