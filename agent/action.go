@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"time"
 
 	"github.com/hpcloud/tail"
 	"github.com/schoeu/gopsinfo"
@@ -27,10 +28,13 @@ func StartAction(c *cli.Context) error {
 		},
 		Follow: true,
 	})
+	st := time.Now()
 	for line := range t.Lines {
 		var psInfo gopsinfo.PsInfo
 		if !conf.NoSysInfo {
-			psInfo = gopsinfo.GetPsInfo(500)
+			et := time.Now()
+			psInfo = gopsinfo.GetPsInfo(int(et.Sub(st).Seconds()) * 1000)
+			st = et
 		}
 		var nodeInfo interface{}
 		err = json.Unmarshal([]byte(line.Text), &nodeInfo)
