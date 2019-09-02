@@ -33,7 +33,11 @@ func StartAction(c *cli.Context) error {
 		var psInfo gopsinfo.PsInfo
 		if !conf.NoSysInfo {
 			et := time.Now()
-			psInfo = gopsinfo.GetPsInfo(int(et.Sub(st).Seconds()) * 1000)
+			timeSub := int(et.Sub(st).Seconds())
+			if timeSub < 1 {
+				timeSub = 1
+			}
+			psInfo = gopsinfo.GetPsInfo(timeSub * 1000)
 			st = et
 		}
 		var nodeInfo interface{}
