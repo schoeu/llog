@@ -12,35 +12,36 @@ wget -qO- https://github.com/schoeu/nma/blob/master/bin/install.sh?raw=true | sh
 ```
 
 ### 指定配置
+
+1. 下载对应版本nma agent
 ```
-
-# 下载对应版本nma agent
-
-# linux 64 bit
+# 下载linux 64 bit
 wget https://github.com/schoeu/nma/blob/master/bin/nma_64bit?raw=true
+
+# 更改程序名
 mv nma_64bit nma
 ```
 或
 ```
-# linux 32 bit
+# 下载linux 32 bit
 wget https://github.com/schoeu/nma/blob/master/bin/nma_32bit?raw=true
+
+# 更改程序名
 mv nma_32bit nma
 ```
 
+2. 创建配置文件，新建nma_conf.json文件，内容如下
+
 ```
-# 新建nma_conf.json文件，内容如下
 {
   "logDir": "/Users/schoeu/Downloads/git/nm/test/nm_log"
   "noSysInfo": false
 }
-
 ```
 
+3. 后台启动nma agent
 ```
-# 后台启动nma agent
-
 nohup ./nma >> nma_nohup.log 2>&1 &
-
 ```
 
 #### 配置说明
