@@ -34,8 +34,9 @@ mv nma_32bit nma
 
 ```
 {
-  "logDir": "/Users/schoeu/Downloads/git/nm/test/nm_log"
-  "noSysInfo": false
+  "logDir": "/Users/schoeu/Downloads/git/nm/test/nm_logs",
+  "noSysInfo": false,
+  "logServer": "http://your_log_server_host"
 }
 ```
 
@@ -48,6 +49,7 @@ nohup ./nma >> nma_nohup.log 2>&1 &
 
 |配置名|示例|说明|默认值|
 |--|--|--|--|
-|logDir|"/Users/schoeu/Downloads/git/nm/test/nm_log"|存放Node实例日志文件夹|"$home/.nm_log/"|
+|logDir|"/Users/schoeu/Downloads/git/nm/test/nm_logs"|存放Node实例日志文件夹|"$home/.nm_logs/"|
 |noSysInfo|false|是否上报系统级别日志（cpu，内存，磁盘，网络）|false|
+|logServer|http://your_log_server_host|日志上报接口，会以POST方式上报json数据|-|
 

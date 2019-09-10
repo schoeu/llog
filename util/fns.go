@@ -12,6 +12,7 @@ import (
 type Config struct {
 	LogDir    string
 	NoSysInfo bool
+	LogServer string
 }
 
 func GetCwd() string {
