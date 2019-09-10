@@ -30,6 +30,10 @@ func GetHomeDir() string {
 	return dir
 }
 
+func GetTempDir() string {
+	return os.TempDir()
+}
+
 func ErrHandler(err error) {
 	if err != nil {
 		panic(err)
@@ -44,6 +48,14 @@ func GetAbsPath(base, p string) string {
 		p = path.Join(base, p)
 	}
 	return p
+}
+
+func IsDir(path string) bool {
+	s, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return s.IsDir()
 }
 
 func UUID() string {

@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"path/filepath"
 	"time"
 
 	"github.com/hpcloud/tail"
@@ -18,10 +19,34 @@ func StartAction(c *cli.Context) error {
 	configFile := util.GetAbsPath(util.GetCwd(), c.Args().First())
 	conf, err := util.GetConfig(configFile)
 	logFile := conf.LogDir
+
 	if logFile == "" {
-		logFileDir, _ := os.UserHomeDir()
-		logFile = path.Join(logFileDir, util.LogFileName)
+		//logFileDir:= util.GetHomeDir()
+		logFileDir := util.GetTempDir()
+		logFile = path.Join(logFileDir, util.LogDir)
 	}
+
+	logChan := make(chan int)
+	err = filepath.Walk(logFile, func(p string, info os.FileInfo, err error) error {
+		if err != nil {
+			fmt.Printf("walk dir errors: %+v \n", err)
+			return err
+		}
+
+		if !info.IsDir() {
+			go pushLog(path.Join(logFile, info.Name()), conf)
+		} else {
+			fmt.Printf("%s is not a log file.\n", path.Join(logFile, info.Name()))
+		}
+		return nil
+	})
+	util.ErrHandler(err)
+	// 阻塞主 goroutines
+	<-logChan
+	return err
+}
+
+func pushLog(logFile string, conf util.Config) {
 	t, err := tail.TailFile(logFile, tail.Config{
 		Location: &tail.SeekInfo{
 			Whence: io.SeekEnd,
@@ -43,9 +68,10 @@ func StartAction(c *cli.Context) error {
 		var nodeInfo interface{}
 		err = json.Unmarshal([]byte(line.Text), &nodeInfo)
 		combineRs := util.CombineData(nodeInfo, psInfo, conf.NoSysInfo)
+		fmt.Println(combineRs)
 		PushData(combineRs)
 	}
-	return err
+	util.ErrHandler(err)
 }
 
 func StopAction(c *cli.Context) error {
