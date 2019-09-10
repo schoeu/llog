@@ -1,2 +1,52 @@
 # nma
 Log agent for node monitor.
+
+## 说明
+本程序为Node监控模块`nm`的代理模块，主要作用为收集各Node实例（nm）的日志，并获取机器系统信息合并上报。
+
+## 安装
+
+### 默认配置
+```
+wget -qO- https://github.com/schoeu/nma/blob/master/bin/install.sh?raw=true | sh
+```
+
+### 指定配置
+```
+
+# 下载对应版本nma agent
+
+# linux 64 bit
+wget https://github.com/schoeu/nma/blob/master/bin/nma_64bit?raw=true
+mv nma_64bit nma
+```
+或
+```
+# linux 32 bit
+wget https://github.com/schoeu/nma/blob/master/bin/nma_32bit?raw=true
+mv nma_32bit nma
+```
+
+```
+# 新建nma_conf.json文件，内容如下
+{
+  "logDir": "/Users/schoeu/Downloads/git/nm/test/nm_log"
+  "noSysInfo": false
+}
+
+```
+
+```
+# 后台启动nma agent
+
+nohup ./nma >> nma_nohup.log 2>&1 &
+
+```
+
+#### 配置说明
+
+|配置名|示例|说明|默认值|
+|--|--|--|--|
+|logDir|"/Users/schoeu/Downloads/git/nm/test/nm_log"|存放Node实例日志文件夹|"$home/.nm_log/"|
+|noSysInfo|false|是否上报系统级别日志（cpu，内存，磁盘，网络）|false|
+
