@@ -8,7 +8,7 @@ Log agent for node monitor.
 
 ### 默认配置
 ```
-wget -qO- https://github.com/schoeu/nma/blob/master/bin/install.sh?raw=true | sh
+wget -qO- https://github.com/schoeu/nma/blob/master/scripts/install.sh?raw=true | sh
 ```
 
 ### 指定配置
