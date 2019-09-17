@@ -17,10 +17,10 @@ func PushData(data map[string]interface{}, conf util.Config) {
 		logServer = conf.LogServer
 	}
 	resp, err := http.Post(logServer, "application/json", bytes.NewBuffer(d))
+
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	util.ErrHandler(err)
-
-	fmt.Println("log server:\n", string(body))
+	fmt.Println("log server response:\n", string(body))
 }

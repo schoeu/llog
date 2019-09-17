@@ -8,7 +8,7 @@ Log agent for node monitor.
 
 ### 默认配置
 ```
-wget -qO- https://github.com/schoeu/nma/blob/master/scripts/install.sh?raw=true | sh
+wget -qO- http://qiniucdn.schoeu.com/install.sh | sh
 ```
 
 ### 指定配置
@@ -16,7 +16,7 @@ wget -qO- https://github.com/schoeu/nma/blob/master/scripts/install.sh?raw=true 
 #### 1. 下载对应版本nma agent
 ```
 # 下载linux 64 bit
-wget https://github.com/schoeu/nma/blob/master/bin/nma_64bit?raw=true
+wget http://qiniucdn.schoeu.com/nma_64bit
 
 # 更改程序名
 mv nma_64bit nma
@@ -24,7 +24,7 @@ mv nma_64bit nma
 或
 ```
 # 下载linux 32 bit
-wget https://github.com/schoeu/nma/blob/master/bin/nma_32bit?raw=true
+wget http://qiniucdn.schoeu.com/nma_32bit
 
 # 更改程序名
 mv nma_32bit nma

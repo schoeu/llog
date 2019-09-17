@@ -41,7 +41,7 @@ func StartAction(c *cli.Context) error {
 		return nil
 	})
 	util.ErrHandler(err)
-	// 阻塞主 goroutines
+	// 阻塞主goroutines
 	<-logChan
 	return err
 }
