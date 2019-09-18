@@ -24,6 +24,13 @@ func StartAction(c *cli.Context) error {
 		//logFileDir:= util.GetHomeDir()
 		logFileDir := util.GetTempDir()
 		logFile = path.Join(logFileDir, util.LogDir)
+
+		exist, err := util.PathExist(logFile)
+		util.ErrHandler(err)
+		if !exist {
+			err = os.Mkdir(logFile, os.ModePerm)
+			util.ErrHandler(err)
+		}
 	}
 
 	logChan := make(chan int)
