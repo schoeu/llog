@@ -10,13 +10,9 @@ import (
 	"github.com/schoeu/nma/util"
 )
 
-func PushData(data map[string]interface{}, conf util.Config) {
+func PushData(data map[string]interface{}, server string) {
 	d, err := json.Marshal(data)
-	logServer := util.LogServer
-	if conf.LogServer != "" {
-		logServer = conf.LogServer
-	}
-	resp, err := http.Post(logServer, "application/json", bytes.NewBuffer(d))
+	resp, err := http.Post(server, "application/json", bytes.NewBuffer(d))
 
 	defer resp.Body.Close()
 
