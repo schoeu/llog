@@ -30,24 +30,6 @@ func main() {
 	}()
 
 	app.Action = agent.StartAction
-	app.Commands = []cli.Command{
-		{
-			Name:   "stop",
-			Usage:  "stop app on agent.",
-			Action: agent.StopAction,
-		},
-		{
-			Name:   "status",
-			Usage:  "show app status.",
-			Action: agent.StatusAction,
-		},
-		{
-			Name:    "remove",
-			Aliases: []string{"rm"},
-			Usage:   "remove app.",
-			Action:  agent.RemoveAction,
-		},
-	}
 
 	err := app.Run(os.Args)
 	util.ErrHandler(err)

@@ -2,7 +2,6 @@ package agent
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"os"
 	"path"
@@ -74,27 +73,9 @@ func pushLog(logFile string, conf util.Config) {
 		var nodeInfo interface{}
 		err = json.Unmarshal([]byte(line.Text), &nodeInfo)
 		combineRs := util.CombineData(nodeInfo, psInfo, conf.NoSysInfo)
-		fmt.Println(combineRs)
 		if logServer != "" {
 			PushData(combineRs, logServer)
 		}
 	}
 	util.ErrHandler(err)
-}
-
-func StopAction(c *cli.Context) error {
-	fmt.Println("stopAction")
-	return nil
-}
-
-func RemoveAction(c *cli.Context) error {
-	fmt.Println("removeAction")
-	// TODO
-	return nil
-}
-
-func StatusAction(c *cli.Context) error {
-	fmt.Println("statusAction")
-	// TODO
-	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/schoeu/gopsinfo"
 )
@@ -41,6 +42,7 @@ func CombineData(inputVal interface{}, info gopsinfo.PsInfo, noSysInfo bool) map
 	rs["version"] = Version
 	rs["logId"] = UUID()
 	rs["type"] = "nmAgent"
+	rs["timestamp"] = time.Now().UnixNano() / 1e6
 
 	return rs
 }
