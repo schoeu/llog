@@ -63,16 +63,18 @@ func pushLog(logFile string, conf util.Config) {
 		var psInfo gopsinfo.PsInfo
 		if !conf.NoSysInfo {
 			et := time.Now()
-			timeSub := int(et.Sub(st).Seconds())
+			during := et.Sub(st)
+			timeSub := int(during)
 			if timeSub < 1 {
-				timeSub = 1
+				during = time.Microsecond * 1000
 			}
-			psInfo = gopsinfo.GetPsInfo(timeSub * 1000)
+			psInfo = gopsinfo.GetPsInfo(during)
 			st = et
 		}
 		var nodeInfo interface{}
 		err = json.Unmarshal([]byte(line.Text), &nodeInfo)
 		combineRs := util.CombineData(nodeInfo, psInfo, conf.NoSysInfo)
+
 		if logServer != "" {
 			PushData(combineRs, logServer)
 		}
