@@ -2,6 +2,7 @@ package agent
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"path"
@@ -74,7 +75,7 @@ func pushLog(logFile string, conf util.Config) {
 		var nodeInfo interface{}
 		err = json.Unmarshal([]byte(line.Text), &nodeInfo)
 		combineRs := util.CombineData(nodeInfo, psInfo, conf.NoSysInfo)
-
+		fmt.Println(combineRs)
 		if logServer != "" {
 			PushData(combineRs, logServer)
 		}
