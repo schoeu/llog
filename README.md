@@ -57,7 +57,7 @@ nohup ./nma ./config.json >> nma_nohup.log 2>&1 &
 |logDir|["/Users/schoeu/Downloads/git/nm/test/nm_logs"]|存放Node实例日志文件夹|"$home/.nm_logs/"|
 |noSysInfo|false|是否上报系统级别日志（cpu，内存，磁盘，网络）|false|
 |logServer|http://your_log_server_host|日志上报接口，会以POST方式上报json数据|-|
-|errLogs|["/path/to/error/log/*.log", "/other/path/to/error/log/*.log"]|日志上报接口，会以POST方式上报json数据|-|
+|errLogs|["/path/to/error/log/*.log", "/other/path/to/error/log/*.log"]|错误日志获取，会整合为json数据上报|-|
 
 
 
