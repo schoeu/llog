@@ -13,13 +13,8 @@ func main() {
 	app.Version = util.Version
 	app.Name = util.AppName
 	app.Usage = util.AppUsage
-
+	app.Action = agent.StartAction
 	app.Commands = []cli.Command{
-		{
-			Name:   "start",
-			Usage:  "config for nma.",
-			Action: agent.StartAction,
-		},
 		{
 			Name:   "stop",
 			Usage:  "stop nma.",

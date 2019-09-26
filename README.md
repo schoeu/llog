@@ -34,23 +34,30 @@ mv nma_32bit nma
 
 ```
 {
-  "logDir": "/Users/schoeu/Downloads/git/nm/test/nm_logs",
+  "logDir": ["/Users/schoeu/Downloads/git/nm/test/nm_logs"],
   "noSysInfo": false,
   "logServer": "http://your_log_server_host",
-  "errLogs": ["/path/to/error/log/*.log"]
+  "errLogs": ["/path/to/error/log/*.log", "/other/path/to/error/log/*.log"]
 }
 ```
 
 #### 3. 后台启动nma agent
 ```
+# 默认配置启动
 nohup ./nma >> nma_nohup.log 2>&1 &
+
+# 指定配置文件启动
+nohup ./nma ./config.json >> nma_nohup.log 2>&1 &
 ```
 
 #### 配置说明
 
 |配置名|示例|说明|默认值|
 |--|--|--|--|
-|logDir|"/Users/schoeu/Downloads/git/nm/test/nm_logs"|存放Node实例日志文件夹|"$home/.nm_logs/"|
+|logDir|["/Users/schoeu/Downloads/git/nm/test/nm_logs"]|存放Node实例日志文件夹|"$home/.nm_logs/"|
 |noSysInfo|false|是否上报系统级别日志（cpu，内存，磁盘，网络）|false|
 |logServer|http://your_log_server_host|日志上报接口，会以POST方式上报json数据|-|
+|errLogs|["/path/to/error/log/*.log", "/other/path/to/error/log/*.log"]|日志上报接口，会以POST方式上报json数据|-|
+
+
 
