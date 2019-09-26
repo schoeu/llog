@@ -2,11 +2,9 @@ package util
 
 import (
 	"fmt"
+	"github.com/schoeu/gopsinfo"
 	"reflect"
 	"strings"
-	"time"
-
-	"github.com/schoeu/gopsinfo"
 )
 
 func CombineData(inputVal interface{}, info gopsinfo.PsInfo, noSysInfo bool) map[string]interface{} {
@@ -37,12 +35,6 @@ func CombineData(inputVal interface{}, info gopsinfo.PsInfo, noSysInfo bool) map
 			rs[i] = fmt.Sprintf("%.0f", v)
 		}
 	}
-
-	// 日志签名
-	rs["version"] = Version
-	rs["logId"] = UUID()
-	rs["type"] = "nmAgent"
-	rs["currentTime"] = time.Now().UnixNano() / 1e6
 
 	return rs
 }

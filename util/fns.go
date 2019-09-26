@@ -10,7 +10,8 @@ import (
 )
 
 type Config struct {
-	LogDir    string
+	ErrLogs   []string
+	LogDir    []string
 	NoSysInfo bool
 	LogServer string
 }

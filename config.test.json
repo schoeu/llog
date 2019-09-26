@@ -1,3 +1,4 @@
 {
-  "logServer": "http://127.0.0.1:9200/nma/logs"
+  "logServer": "http://127.0.0.1:9200/nma/logs",
+  "errLogs": ["/Users/schoeu/Downloads/git/showxdata/*.log"]
 }
