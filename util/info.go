@@ -5,7 +5,7 @@ var (
 	//LogServer = "http://your_log_server/log"
 	LogServer   = ""
 	AppName     = "nmAgent"
-	AppUsage    = "Agent for ps log"
+	AppUsage    = "Agent for log"
 	LogDir      = ".nm_logs"
 	FilePattern = "*.log"
 )

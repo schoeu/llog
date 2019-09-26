@@ -36,7 +36,8 @@ mv nma_32bit nma
 {
   "logDir": "/Users/schoeu/Downloads/git/nm/test/nm_logs",
   "noSysInfo": false,
-  "logServer": "http://your_log_server_host"
+  "logServer": "http://your_log_server_host",
+  "errLogs": ["/path/to/error/log/*.log"]
 }
 ```
 

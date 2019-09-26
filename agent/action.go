@@ -2,6 +2,7 @@ package agent
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"path"
@@ -14,7 +15,9 @@ import (
 	"github.com/urfave/cli"
 )
 
-func StartAction(c *cli.Context) error {
+var ch = make(chan int)
+
+func StartAction(c *cli.Context) {
 	configFile := util.GetAbsPath(util.GetCwd(), c.Args().First())
 	conf, err := util.GetConfig(configFile)
 	logFiles := conf.LogDir
@@ -24,17 +27,15 @@ func StartAction(c *cli.Context) error {
 		logFiles = append(logFiles, path.Join(logFileDir, util.LogDir, util.FilePattern))
 	}
 
-	logChan := make(chan int)
-
 	// 监控日志收集
 	err = fileGlob(logFiles, conf, true)
 
 	// 错误日志收集
 	err = fileGlob(conf.ErrLogs, conf, false)
 
-	// 阻塞主goroutines
-	<-logChan
-	return err
+	util.ErrHandler(err)
+
+	<-ch
 }
 
 func fileGlob(logs []string, conf util.Config, isNormal bool) error {
@@ -42,7 +43,7 @@ func fileGlob(logs []string, conf util.Config, isNormal bool) error {
 		exist, err := util.PathExist(v)
 		util.ErrHandler(err)
 		if !exist {
-			err = os.Mkdir(v, os.ModePerm)
+			err = os.Mkdir(path.Dir(v), os.ModePerm)
 		}
 		if !path.IsAbs(v) {
 			v = util.GetAbsPath("", v)
@@ -59,6 +60,12 @@ func fileGlob(logs []string, conf util.Config, isNormal bool) error {
 }
 
 func pushLog(logFile string, conf util.Config, isNormal bool) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+
 	t, err := tail.TailFile(logFile, tail.Config{
 		Location: &tail.SeekInfo{
 			Whence: io.SeekEnd,
@@ -87,6 +94,7 @@ func pushLog(logFile string, conf util.Config, isNormal bool) {
 			}
 			var nodeInfo interface{}
 			err = json.Unmarshal([]byte(line.Text), &nodeInfo)
+
 			combineRs := util.CombineData(nodeInfo, psInfo, conf.NoSysInfo)
 			rs := combineTags(combineRs)
 			if logServer != "" {
@@ -114,4 +122,8 @@ func combineTags(rs map[string]interface{}) map[string]interface{} {
 	rs["type"] = util.AppName
 	rs["currentTime"] = time.Now().UnixNano() / 1e6
 	return rs
+}
+
+func StopAction(c *cli.Context) {
+	fmt.Println("stop")
 }

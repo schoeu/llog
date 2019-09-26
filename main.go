@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
-	"os"
-
 	"github.com/schoeu/nma/agent"
 	"github.com/schoeu/nma/util"
 	"github.com/urfave/cli"
+	"os"
 )
 
 func main() {
@@ -15,22 +14,24 @@ func main() {
 	app.Name = util.AppName
 	app.Usage = util.AppUsage
 
-	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:  "config, c",
-			Value: "",
-			Usage: "configuration file path.",
+	app.Commands = []cli.Command{
+		{
+			Name:   "start",
+			Usage:  "config for nma.",
+			Action: agent.StartAction,
+		},
+		{
+			Name:   "stop",
+			Usage:  "stop nma.",
+			Action: agent.StopAction,
 		},
 	}
+	err := app.Run(os.Args)
+	util.ErrHandler(err)
 
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println(err)
 		}
 	}()
-
-	app.Action = agent.StartAction
-
-	err := app.Run(os.Args)
-	util.ErrHandler(err)
 }
