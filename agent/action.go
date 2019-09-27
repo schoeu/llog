@@ -82,17 +82,18 @@ func pushLog(logFile string, conf util.Config, isNormal bool) {
 		logServer = conf.LogServer
 	}
 
-	if isNormal {
-		st := time.Now()
-		include, exclude := conf.Include, conf.Exclude
-		for line := range t.Lines {
-			if len(include) > 0 && !util.IsInclude(line.Text, include) {
-				continue
-			}
-			if len(exclude) > 0 && util.IsInclude(line.Text, exclude) {
-				continue
-			}
+	st := time.Now()
+	var rs map[string]interface{}
+	include, exclude := conf.Include, conf.Exclude
+	for line := range t.Lines {
+		if len(include) > 0 && !util.IsInclude(line.Text, include) {
+			continue
+		}
+		if len(exclude) > 0 && util.IsInclude(line.Text, exclude) {
+			continue
+		}
 
+		if isNormal {
 			var psInfo gopsinfo.PsInfo
 			if !conf.NoSysInfo {
 				et := time.Now()
@@ -107,32 +108,26 @@ func pushLog(logFile string, conf util.Config, isNormal bool) {
 			var nodeInfo interface{}
 			err = json.Unmarshal([]byte(line.Text), &nodeInfo)
 
-			combineRs := util.CombineData(nodeInfo, psInfo, conf.NoSysInfo)
-			rs := combineTags(combineRs)
-			if logServer != "" {
-				PushData(rs, logServer)
+			rs = util.CombineData(nodeInfo, psInfo, conf.NoSysInfo)
+		} else {
+			rs = map[string]interface{}{
+				"@message": line.Text,
 			}
 		}
-		util.ErrHandler(err)
-	} else {
-		for line := range t.Lines {
-			errStruct := map[string]interface{}{
-				"errorMsg": line.Text,
-			}
-			rs := combineTags(errStruct)
-			if logServer != "" {
-				PushData(rs, logServer)
-			}
+		rs := combineTags(rs)
+		if logServer != "" {
+			PushData(rs, logServer)
 		}
 	}
+	util.ErrHandler(err)
 }
 
 func combineTags(rs map[string]interface{}) map[string]interface{} {
 	// 日志签名
-	rs["version"] = util.Version
-	rs["logId"] = util.UUID()
-	rs["type"] = util.AppName
-	rs["currentTime"] = time.Now().UnixNano() / 1e6
+	rs["@version"] = util.Version
+	rs["@logId"] = util.UUID()
+	rs["@type"] = util.AppName
+	rs["@timestamps"] = time.Now().UnixNano() / 1e6
 	return rs
 }
 
