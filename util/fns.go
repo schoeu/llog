@@ -10,10 +10,13 @@ import (
 )
 
 type Config struct {
-	ErrLogs   []string
-	LogDir    []string
-	NoSysInfo bool
-	LogServer string
+	ErrLogs      []string
+	LogDir       []string
+	NoSysInfo    bool
+	LogServer    string
+	Exclude      []string
+	Include      []string
+	ExcludeFiles []string
 }
 
 func GetCwd() string {

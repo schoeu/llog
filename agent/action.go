@@ -15,12 +15,12 @@ import (
 	"github.com/urfave/cli"
 )
 
-var ch = make(chan int)
-
 func StartAction(c *cli.Context) {
 	configFile := util.GetAbsPath(util.GetCwd(), c.Args().First())
 	conf, err := util.GetConfig(configFile)
 	logFiles := conf.LogDir
+
+	var ch = make(chan int)
 
 	if len(logFiles) == 0 {
 		logFileDir := util.GetTempDir()
@@ -53,6 +53,10 @@ func fileGlob(logs []string, conf util.Config, isNormal bool) error {
 			return err
 		}
 		for _, v := range paths {
+			excludeFiles := conf.ExcludeFiles
+			if len(excludeFiles) > 0 && !IsInclude(v, conf.ExcludeFiles) {
+				continue
+			}
 			go pushLog(v, conf, isNormal)
 		}
 	}
@@ -80,7 +84,15 @@ func pushLog(logFile string, conf util.Config, isNormal bool) {
 
 	if isNormal {
 		st := time.Now()
+		include, exclude := conf.Include, conf.Exclude
 		for line := range t.Lines {
+			if len(include) > 0 && !IsInclude(line.Text, include) {
+				continue
+			}
+			if len(exclude) > 0 && IsInclude(line.Text, exclude) {
+				continue
+			}
+
 			var psInfo gopsinfo.PsInfo
 			if !conf.NoSysInfo {
 				et := time.Now()
