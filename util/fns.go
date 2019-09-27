@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"regexp"
 
 	"github.com/satori/go.uuid"
 )
@@ -86,4 +87,15 @@ func PathExist(p string) (bool, error) {
 		return false, nil
 	}
 	return false, err
+}
+
+func IsInclude(text string, regs []string) bool {
+	for _, v := range regs {
+		r, err := regexp.Compile(v)
+		ErrHandler(err)
+		if r.MatchString(text) {
+			return true
+		}
+	}
+	return false
 }

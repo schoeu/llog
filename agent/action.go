@@ -54,7 +54,7 @@ func fileGlob(logs []string, conf util.Config, isNormal bool) error {
 		}
 		for _, v := range paths {
 			excludeFiles := conf.ExcludeFiles
-			if len(excludeFiles) > 0 && !IsInclude(v, conf.ExcludeFiles) {
+			if len(excludeFiles) > 0 && !util.IsInclude(v, conf.ExcludeFiles) {
 				continue
 			}
 			go pushLog(v, conf, isNormal)
@@ -86,10 +86,10 @@ func pushLog(logFile string, conf util.Config, isNormal bool) {
 		st := time.Now()
 		include, exclude := conf.Include, conf.Exclude
 		for line := range t.Lines {
-			if len(include) > 0 && !IsInclude(line.Text, include) {
+			if len(include) > 0 && !util.IsInclude(line.Text, include) {
 				continue
 			}
-			if len(exclude) > 0 && IsInclude(line.Text, exclude) {
+			if len(exclude) > 0 && util.IsInclude(line.Text, exclude) {
 				continue
 			}
 
