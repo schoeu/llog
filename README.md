@@ -34,7 +34,7 @@ mv nma_32bit nma
 
 ```
 {
-  "logDir": ["/Users/schoeu/Downloads/git/nm/test/nm_logs"],
+  "logDir": ["/path/to/normal/log/*.log"],
   "noSysInfo": false,
   "logServer": "http://your_log_server_host",
   "errLogs": ["/path/to/error/log/*.log", "/other/path/to/error/log/*.log"]
@@ -54,10 +54,9 @@ nohup ./nma ./config.json >> nma_nohup.log 2>&1 &
 
 |配置名|示例|说明|默认值|
 |--|--|--|--|
-|logDir|["/Users/schoeu/Downloads/git/nm/test/nm_logs"]|存放Node实例日志文件夹|"$tmp/.nm_logs/"|
+|logDir|["/path/to/normal/log/*.log","/path/to/error/log/*.log"]|存放各类日志文件的glob匹配路径|"$tmp/.nm_logs/*"|
 |noSysInfo|false|是否上报系统级别日志（cpu，内存，磁盘，网络）|false|
 |logServer|http://your_log_server_host|日志上报接口，会以POST方式上报json数据|-|
-|errLogs|["/path/to/error/log/*.log", "/other/path/to/error/log/*.log"]|错误日志获取，会整合为json数据上报|-|
 |exclude|["^\w+"]|在输入中排除符合正则表达式列表的那些行|-|
 |include|["^\w+"]|包含输入中符合正则表达式列表的那些行|所有行|
 |excludeFiles|["\d{3}.log"]|忽略掉符合正则表达式列表的文件|-|

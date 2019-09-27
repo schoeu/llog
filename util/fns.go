@@ -11,7 +11,6 @@ import (
 )
 
 type Config struct {
-	ErrLogs      []string
 	LogDir       []string
 	NoSysInfo    bool
 	LogServer    string

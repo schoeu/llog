@@ -28,17 +28,14 @@ func StartAction(c *cli.Context) {
 	}
 
 	// 监控日志收集
-	err = fileGlob(logFiles, conf, true)
-
-	// 错误日志收集
-	err = fileGlob(conf.ErrLogs, conf, false)
+	err = fileGlob(logFiles, conf)
 
 	util.ErrHandler(err)
 
 	<-ch
 }
 
-func fileGlob(logs []string, conf util.Config, isNormal bool) error {
+func fileGlob(logs []string, conf util.Config) error {
 	for _, v := range logs {
 		exist, err := util.PathExist(v)
 		util.ErrHandler(err)
@@ -57,13 +54,13 @@ func fileGlob(logs []string, conf util.Config, isNormal bool) error {
 			if len(excludeFiles) > 0 && !util.IsInclude(v, conf.ExcludeFiles) {
 				continue
 			}
-			go pushLog(v, conf, isNormal)
+			go pushLog(v, conf)
 		}
 	}
 	return nil
 }
 
-func pushLog(logFile string, conf util.Config, isNormal bool) {
+func pushLog(logFile string, conf util.Config) {
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println(err)
@@ -92,19 +89,16 @@ func pushLog(logFile string, conf util.Config, isNormal bool) {
 		if len(exclude) > 0 && util.IsInclude(line.Text, exclude) {
 			continue
 		}
-
-		if isNormal {
+		if !conf.NoSysInfo {
 			var psInfo gopsinfo.PsInfo
-			if !conf.NoSysInfo {
-				et := time.Now()
-				during := et.Sub(st)
-				timeSub := int(during)
-				if timeSub < 1 {
-					during = time.Microsecond * 1000
-				}
-				psInfo = gopsinfo.GetPsInfo(during)
-				st = et
+			et := time.Now()
+			during := et.Sub(st)
+			timeSub := int(during)
+			if timeSub < 1 {
+				during = time.Microsecond * 1000
 			}
+			psInfo = gopsinfo.GetPsInfo(during)
+			st = et
 			var nodeInfo interface{}
 			err = json.Unmarshal([]byte(line.Text), &nodeInfo)
 
@@ -114,9 +108,8 @@ func pushLog(logFile string, conf util.Config, isNormal bool) {
 				"@message": line.Text,
 			}
 		}
-		rs := combineTags(rs)
 		if logServer != "" {
-			PushData(rs, logServer)
+			PushData(combineTags(rs), logServer)
 		}
 	}
 	util.ErrHandler(err)
