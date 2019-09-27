@@ -59,15 +59,17 @@ nohup ./lla ./config.json >> lla_nohup.log 2>&1 &
 |logDir|["/path/to/normal/log/*.log","/path/to/error/log/*.log"]|存放各类日志文件的glob匹配路径|"$tmp/.nm_logs/*"|
 |noSysInfo|false|不上报系统级别日志（cpu，内存，磁盘，网络）|false|
 |logServer|http://your_log_server_host|日志上报接口，会以POST方式上报json数据|-|
-|exclude|["^\w+"]|在输入中排除符合正则表达式列表的那些行|-|
-|include|["^\w+"]|包含输入中符合正则表达式列表的那些行|所有行|
+|exclude|["^\w+"]|在输入中排除符合正则表达式列表的日志行|-|
+|include|["^\w+"]|包含输入中符合正则表达式列表的日志行|所有行|
 |excludeFiles|["\d{3}.log"]|忽略掉符合正则表达式列表的文件|-|
 
-### TODO
-
-- [x] 排除一些行
-- [x] 包含一些行
-- [x] 忽略符合正则的文件
+## TODO
+- [x] 获取系统信息（cpu，内存，磁盘，网络）
+- [x] 支持Glob语法批量指定日志
+- [x] output支持ElasticSearch
+- [x] 在输入中排除符合正则表达式列表的日志行
+- [x] 包含输入中符合正则表达式列表的日志行
+- [x] 忽略掉符合正则表达式列表的文件
 - [ ] 文件状态保存
 - [ ] 一次日志事件中最多上传多少个字符
 - [ ] 多行日志匹配，一般用于错误堆栈信息收集
