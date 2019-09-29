@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"github.com/schoeu/nma/agent"
-	"github.com/schoeu/nma/util"
+	"github.com/schoeu/llog/agent"
+	"github.com/schoeu/llog/util"
 	"github.com/urfave/cli"
+	"log"
 	"os"
 )
 
@@ -16,7 +16,7 @@ func main() {
 
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Println(err)
+			log.Println(err)
 		}
 	}()
 
@@ -24,7 +24,7 @@ func main() {
 	app.Commands = []cli.Command{
 		{
 			Name:   "stop",
-			Usage:  "stop nma.",
+			Usage:  "stop llog.",
 			Action: agent.StopAction,
 		},
 	}

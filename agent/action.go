@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,13 +11,20 @@ import (
 
 	"github.com/hpcloud/tail"
 	"github.com/schoeu/gopsinfo"
-	"github.com/schoeu/nma/util"
+	"github.com/schoeu/llog/util"
 	"github.com/urfave/cli"
 )
 
 func StartAction(c *cli.Context) {
+	//defer func() {
+	//	if err := recover(); err != nil {
+	//		log.Println(err)
+	//	}
+	//}()
 	configFile := util.GetAbsPath(util.GetCwd(), c.Args().First())
 	conf, err := util.GetConfig(configFile)
+	util.ErrHandler(err)
+
 	logFiles := conf.LogDir
 
 	var ch = make(chan int)
@@ -25,12 +33,6 @@ func StartAction(c *cli.Context) {
 		logFileDir := util.GetTempDir()
 		logFiles = append(logFiles, filepath.Join(logFileDir, util.LogDir, util.FilePattern))
 	}
-
-	//defer func() {
-	//	if err := recover(); err != nil {
-	//		fmt.Println(err)
-	//	}
-	//}()
 
 	// 监控日志收集
 	err = fileGlob(logFiles, conf)
@@ -56,7 +58,7 @@ func fileGlob(logs []string, conf util.Config) error {
 		}
 		for _, v := range paths {
 			excludeFiles := conf.ExcludeFiles
-			if len(excludeFiles) > 0 && util.IsInclude(v, conf.ExcludeFiles) {
+			if len(excludeFiles) > 0 && util.IsInclude(v, excludeFiles) {
 				continue
 			}
 			go pushLog(v, conf)
@@ -71,53 +73,80 @@ func pushLog(logFile string, conf util.Config) {
 			fmt.Println(err)
 		}
 	}()
-
 	t, err := tail.TailFile(logFile, tail.Config{
 		Location: &tail.SeekInfo{
 			Whence: io.SeekEnd,
 		},
 		Follow: true,
 	})
+	util.ErrHandler(err)
 
 	st := time.Now()
-	var rs map[string]interface{}
-	include, exclude, apiServer := conf.Include, conf.Exclude, conf.ApiServer
-	for line := range t.Lines {
-		if len(include) > 0 && !util.IsInclude(line.Text, include) {
-			continue
-		}
-		if len(exclude) > 0 && util.IsInclude(line.Text, exclude) {
-			continue
-		}
-		if !conf.NoSysInfo {
-			var psInfo gopsinfo.PsInfo
-			et := time.Now()
-			during := et.Sub(st)
-			timeSub := int(during)
-			if timeSub < 1 {
-				during = time.Microsecond * 1000
-			}
-			psInfo = gopsinfo.GetPsInfo(during)
-			st = et
-			var nodeInfo interface{}
-			err = json.Unmarshal([]byte(line.Text), &nodeInfo)
+	var logContent bytes.Buffer
 
-			rs = util.CombineData(nodeInfo, psInfo, conf.NoSysInfo)
-		} else {
-			textByte := []byte(line.Text)
-			maxByte := conf.MaxBytes
-			if maxByte != 0 && len(textByte) > maxByte {
-				textByte = textByte[:maxByte]
-			}
-			rs = map[string]interface{}{
-				"@message": string(textByte),
-			}
+	include, exclude, apiServer, multiline := conf.Include, conf.Exclude, conf.ApiServer, conf.Multiline.Pattern
+	noSysInfo, confMaxByte, maxLines := conf.NoSysInfo, conf.MaxBytes, conf.Multiline.MaxLines
+	if maxLines == 0 {
+		maxLines = util.MaxLinesDefault
+	}
+	for line := range t.Lines {
+		text := line.Text
+		if len(include) > 0 && !util.IsInclude(text, include) {
+			continue
 		}
-		if apiServer != "" {
-			go PushData(combineTags(rs), apiServer)
+		if len(exclude) > 0 && util.IsInclude(text, exclude) {
+			continue
+		}
+		// 多行模式
+		if multiline != "" {
+			// 匹配开始头
+			if util.IsInclude(text, []string{multiline}) {
+				if logContent.Len() > 0 {
+					doPush(noSysInfo, st, logContent.Bytes(), apiServer, confMaxByte)
+					logContent = bytes.Buffer{}
+				}
+			}
+			// 匹配多行其他内容
+			if logContent.Len() < maxLines {
+				logContent.WriteString(text)
+				continue
+			}
+		} else {
+			doPush(noSysInfo, st, []byte(text), apiServer, confMaxByte)
 		}
 	}
 	util.ErrHandler(err)
+}
+
+func doPush(noSysInfo bool, st time.Time, text []byte, apiServer string, confMaxByte int) {
+	var rs map[string]interface{}
+	if !noSysInfo {
+		var psInfo gopsinfo.PsInfo
+		et := time.Now()
+		during := et.Sub(st)
+		timeSub := int(during)
+		if timeSub < 1 {
+			during = time.Microsecond * 1000
+		}
+		psInfo = gopsinfo.GetPsInfo(during)
+		st = et
+
+		sysInfo, err := json.Marshal(psInfo)
+		util.ErrHandler(err)
+		rs = util.CombineData(map[string]interface{}{
+			"@sysInfo": string(sysInfo),
+		}, psInfo)
+	}
+
+	if confMaxByte != 0 && len(text) > confMaxByte {
+		text = text[:confMaxByte]
+	}
+	rs = map[string]interface{}{
+		"@message": string(text),
+	}
+	if apiServer != "" {
+		go PushData(combineTags(rs), apiServer)
+	}
 }
 
 func combineTags(rs map[string]interface{}) map[string]interface{} {

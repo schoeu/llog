@@ -2,31 +2,17 @@ package util
 
 import (
 	"fmt"
-	"reflect"
-	"strings"
-
 	"github.com/schoeu/gopsinfo"
+	"reflect"
 )
 
-func CombineData(inputVal interface{}, info gopsinfo.PsInfo, noSysInfo bool) map[string]interface{} {
+func CombineData(inputVal interface{}, info gopsinfo.PsInfo) map[string]interface{} {
 	fieldVal, ok := inputVal.(map[string]interface{})
 	if !ok {
 		panic("json unmarshal error.")
 	}
 
 	rs := map[string]interface{}{}
-	if !noSysInfo {
-		getType := reflect.TypeOf(info)
-		getValue := reflect.ValueOf(info)
-		for i := 0; i < getType.NumField(); i++ {
-			field := getType.Field(i)
-			value := getValue.Field(i).Interface()
-			//fmt.Printf("%s: %v = %v\n", field.Name, field.Type, value)
-			if field.Name != "" {
-				rs[strings.ToLower(field.Name[:1])+field.Name[1:]] = value
-			}
-		}
-	}
 
 	for i, v := range fieldVal {
 		t := reflect.TypeOf(v).String()

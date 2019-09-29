@@ -1,4 +1,4 @@
-module github.com/schoeu/nma
+module github.com/schoeu/llog
 
 go 1.12
 

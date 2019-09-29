@@ -21,13 +21,17 @@ import (
 //}
 
 type Config struct {
-	NoSysInfo     bool     `yaml:"no_sys_info"`
-	LogDir        []string `yaml:"log_path"`
-	Exclude       []string `yaml:"exclude_lines"`
-	Include       []string `yaml:"include_lines"`
-	ExcludeFiles  []string `yaml:"exclude_files"`
-	MaxBytes      int      `yaml:"max_bytes"`
-	ApiServer     string   `yaml:"api_server"`
+	NoSysInfo    bool     `yaml:"no_sys_info"`
+	LogDir       []string `yaml:"log_path"`
+	Exclude      []string `yaml:"exclude_lines"`
+	Include      []string `yaml:"include_lines"`
+	ExcludeFiles []string `yaml:"exclude_files"`
+	MaxBytes     int      `yaml:"max_bytes"`
+	ApiServer    string   `yaml:"api_server"`
+	Multiline    struct {
+		Pattern  string
+		MaxLines int `yaml:"max_lines"`
+	}
 	Elasticsearch struct {
 		Host     []string
 		Protocal string
@@ -105,8 +109,7 @@ func PathExist(p string) (bool, error) {
 
 func IsInclude(text string, regs []string) bool {
 	for _, v := range regs {
-		r, err := regexp.Compile(v)
-		ErrHandler(err)
+		r := regexp.MustCompile(v)
 		if r.MatchString(text) {
 			return true
 		}

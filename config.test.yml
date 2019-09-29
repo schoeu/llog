@@ -8,7 +8,13 @@ exclude_lines: ["test"]
 # 包含输入中符合正则表达式列表的日志行
 #include_lines: ["^\\w+"]
 # 忽略掉符合正则表达式列表的文件
-exclude_files: ["\\d{3}.log"]
+exclude_files: ["\\d{4}.log"]
+# 多行匹配
+multiline:
+  # 多行匹配点
+  pattern: "^error_log"
+  # 最多匹配多少行，默认500
+  max_lines: 500
 
 # 输出配置:
 # 把收集到的日志发送到指定API
@@ -30,5 +36,3 @@ elasticsearch:
 #  datatype: list
 #  key: "llog"
 #  db: 0
-
-
