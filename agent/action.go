@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 	"time"
 
@@ -24,8 +23,14 @@ func StartAction(c *cli.Context) {
 
 	if len(logFiles) == 0 {
 		logFileDir := util.GetTempDir()
-		logFiles = append(logFiles, path.Join(logFileDir, util.LogDir, util.FilePattern))
+		logFiles = append(logFiles, filepath.Join(logFileDir, util.LogDir, util.FilePattern))
 	}
+
+	//defer func() {
+	//	if err := recover(); err != nil {
+	//		fmt.Println(err)
+	//	}
+	//}()
 
 	// 监控日志收集
 	err = fileGlob(logFiles, conf)
@@ -40,9 +45,9 @@ func fileGlob(logs []string, conf util.Config) error {
 		exist, err := util.PathExist(v)
 		util.ErrHandler(err)
 		if !exist {
-			err = os.Mkdir(path.Dir(v), os.ModePerm)
+			err = os.Mkdir(filepath.Dir(v), os.ModePerm)
 		}
-		if !path.IsAbs(v) {
+		if !filepath.IsAbs(v) {
 			v = util.GetAbsPath("", v)
 		}
 		paths, err := filepath.Glob(v)
@@ -51,7 +56,7 @@ func fileGlob(logs []string, conf util.Config) error {
 		}
 		for _, v := range paths {
 			excludeFiles := conf.ExcludeFiles
-			if len(excludeFiles) > 0 && !util.IsInclude(v, conf.ExcludeFiles) {
+			if len(excludeFiles) > 0 && util.IsInclude(v, conf.ExcludeFiles) {
 				continue
 			}
 			go pushLog(v, conf)
@@ -74,14 +79,9 @@ func pushLog(logFile string, conf util.Config) {
 		Follow: true,
 	})
 
-	logServer := util.LogServer
-	if conf.LogServer != "" {
-		logServer = conf.LogServer
-	}
-
 	st := time.Now()
 	var rs map[string]interface{}
-	include, exclude := conf.Include, conf.Exclude
+	include, exclude, apiServer := conf.Include, conf.Exclude, conf.ApiServer
 	for line := range t.Lines {
 		if len(include) > 0 && !util.IsInclude(line.Text, include) {
 			continue
@@ -113,8 +113,8 @@ func pushLog(logFile string, conf util.Config) {
 				"@message": string(textByte),
 			}
 		}
-		if logServer != "" {
-			PushData(combineTags(rs), logServer)
+		if apiServer != "" {
+			go PushData(combineTags(rs), apiServer)
 		}
 	}
 	util.ErrHandler(err)

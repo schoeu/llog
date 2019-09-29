@@ -13,6 +13,13 @@ func main() {
 	app.Version = util.Version
 	app.Name = util.AppName
 	app.Usage = util.AppUsage
+
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+
 	app.Action = agent.StartAction
 	app.Commands = []cli.Command{
 		{
@@ -23,10 +30,4 @@ func main() {
 	}
 	err := app.Run(os.Args)
 	util.ErrHandler(err)
-
-	defer func() {
-		if err := recover(); err != nil {
-			fmt.Println(err)
-		}
-	}()
 }

@@ -1,23 +1,38 @@
 package util
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"os"
-	"path"
+	"path/filepath"
 	"regexp"
 
 	"github.com/satori/go.uuid"
+	"gopkg.in/yaml.v2"
 )
 
+//type Config struct {
+//	LogDir       []string `yaml:"log_dir"`
+//	NoSysInfo    bool
+//	LogServer    string
+//	Exclude      []string
+//	Include      []string
+//	ExcludeFiles []string
+//	MaxBytes     int
+//}
+
 type Config struct {
-	LogDir       []string
-	NoSysInfo    bool
-	LogServer    string
-	Exclude      []string
-	Include      []string
-	ExcludeFiles []string
-	MaxBytes     int
+	NoSysInfo     bool     `yaml:"no_sys_info"`
+	LogDir        []string `yaml:"log_path"`
+	Exclude       []string `yaml:"exclude_lines"`
+	Include       []string `yaml:"include_lines"`
+	ExcludeFiles  []string `yaml:"exclude_files"`
+	MaxBytes      int      `yaml:"max_bytes"`
+	ApiServer     string   `yaml:"api_server"`
+	Elasticsearch struct {
+		Host     []string
+		Protocal string
+		Index    string
+	}
 }
 
 func GetCwd() string {
@@ -50,8 +65,8 @@ func GetAbsPath(base, p string) string {
 	if base == "" {
 		base = GetCwd()
 	}
-	if !path.IsAbs(p) {
-		p = path.Join(base, p)
+	if !filepath.IsAbs(p) {
+		p = filepath.Join(base, p)
 	}
 	return p
 }
@@ -73,8 +88,7 @@ func GetConfig(p string) (Config, error) {
 
 	c := Config{}
 	data, err := ioutil.ReadFile(p)
-	err = json.Unmarshal(data, &c)
-
+	err = yaml.Unmarshal(data, &c)
 	return c, err
 }
 
