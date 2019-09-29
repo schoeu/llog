@@ -2,11 +2,10 @@ package util
 
 import (
 	"fmt"
-	"github.com/schoeu/gopsinfo"
 	"reflect"
 )
 
-func CombineData(inputVal interface{}, info gopsinfo.PsInfo) map[string]interface{} {
+func CombineData(inputVal interface{}) map[string]interface{} {
 	fieldVal, ok := inputVal.(map[string]interface{})
 	if !ok {
 		panic("json unmarshal error.")

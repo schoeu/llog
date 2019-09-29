@@ -16,11 +16,11 @@ import (
 )
 
 func StartAction(c *cli.Context) {
-	//defer func() {
-	//	if err := recover(); err != nil {
-	//		log.Println(err)
-	//	}
-	//}()
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println(err)
+		}
+	}()
 	configFile := util.GetAbsPath(util.GetCwd(), c.Args().First())
 	conf, err := util.GetConfig(configFile)
 	util.ErrHandler(err)
@@ -85,10 +85,7 @@ func pushLog(logFile string, conf util.Config) {
 	var logContent bytes.Buffer
 
 	include, exclude, apiServer, multiline := conf.Include, conf.Exclude, conf.ApiServer, conf.Multiline.Pattern
-	noSysInfo, confMaxByte, maxLines := conf.NoSysInfo, conf.MaxBytes, conf.Multiline.MaxLines
-	if maxLines == 0 {
-		maxLines = util.MaxLinesDefault
-	}
+	SysInfo, confMaxByte, maxLines := conf.SysInfo, conf.MaxBytes, conf.Multiline.MaxLines
 	for line := range t.Lines {
 		text := line.Text
 		if len(include) > 0 && !util.IsInclude(text, include) {
@@ -102,25 +99,30 @@ func pushLog(logFile string, conf util.Config) {
 			// 匹配开始头
 			if util.IsInclude(text, []string{multiline}) {
 				if logContent.Len() > 0 {
-					doPush(noSysInfo, st, logContent.Bytes(), apiServer, confMaxByte)
+					doPush(SysInfo, st, logContent.Bytes(), apiServer, confMaxByte)
 					logContent = bytes.Buffer{}
 				}
 			}
 			// 匹配多行其他内容
-			if logContent.Len() < maxLines {
+			if maxLines != 0 && logContent.Len() < maxLines {
 				logContent.WriteString(text)
 				continue
 			}
 		} else {
-			doPush(noSysInfo, st, []byte(text), apiServer, confMaxByte)
+			doPush(SysInfo, st, []byte(text), apiServer, confMaxByte)
 		}
 	}
 	util.ErrHandler(err)
 }
 
-func doPush(noSysInfo bool, st time.Time, text []byte, apiServer string, confMaxByte int) {
+func doPush(SysInfo bool, st time.Time, text []byte, apiServer string, confMaxByte int) {
 	var rs map[string]interface{}
-	if !noSysInfo {
+
+	if confMaxByte != 0 && len(text) > confMaxByte {
+		text = text[:confMaxByte]
+	}
+
+	if SysInfo {
 		var psInfo gopsinfo.PsInfo
 		et := time.Now()
 		during := et.Sub(st)
@@ -135,15 +137,16 @@ func doPush(noSysInfo bool, st time.Time, text []byte, apiServer string, confMax
 		util.ErrHandler(err)
 		rs = util.CombineData(map[string]interface{}{
 			"@sysInfo": string(sysInfo),
-		}, psInfo)
+			"@message": string(text),
+		})
+	} else {
+		rs = map[string]interface{}{
+			"@message": string(text),
+		}
 	}
 
-	if confMaxByte != 0 && len(text) > confMaxByte {
-		text = text[:confMaxByte]
-	}
-	rs = map[string]interface{}{
-		"@message": string(text),
-	}
+	vv, _ := json.Marshal(combineTags(rs))
+	fmt.Println(string(vv))
 	if apiServer != "" {
 		go PushData(combineTags(rs), apiServer)
 	}

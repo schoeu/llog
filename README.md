@@ -38,28 +38,28 @@ mv lla_32bit lla
 ```
 # 输入配置:
 # 是否上报系统级别日志（cpu，内存，磁盘，网络）, 默认为false，不上报
-no_sys_info: false
+#sys_info: true
 # 存放各类日志文件的glob匹配路径
-log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/*","/path/to/error/log/.log"]
+#log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/*","/path/to/error/log/.log"]
 # 在输入中排除符合正则表达式列表的日志行
-exclude_lines: ["test"]
+#exclude_lines: ["test"]
 # 包含输入中符合正则表达式列表的日志行
 #include_lines: ["^\\w+"]
 # 忽略掉符合正则表达式列表的文件
-exclude_files: ["\\d{4}.log"]
+#exclude_files: ["\\d{4}.log"]
 # 多行匹配
-multiline:
+#multiline:
   # 多行匹配点
-  pattern: "^error_log"
+  #pattern: "^error_log"
   # 最多匹配多少行，默认500
-  max_lines: 500
+  #max_lines: 500
 
 # 输出配置:
 # 把收集到的日志发送到指定API
 # 请求boby中带有JSON数据，以POST方法发送至指定接口
 api_server: "http://127.0.0.1:9200/nma/logs"
-elasticsearch:
-  host: ["http://127.0.0.1:9200/nma"]
+#elasticsearch:
+  #host: ["http://127.0.0.1:9200/nma"]
   # 输出认证.
   #username: "admin"
   #password: "s3cr3t"

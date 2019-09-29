@@ -10,18 +10,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-//type Config struct {
-//	LogDir       []string `yaml:"log_dir"`
-//	NoSysInfo    bool
-//	LogServer    string
-//	Exclude      []string
-//	Include      []string
-//	ExcludeFiles []string
-//	MaxBytes     int
-//}
-
 type Config struct {
-	NoSysInfo    bool     `yaml:"no_sys_info"`
+	SysInfo      bool     `yaml:"sys_info"`
 	LogDir       []string `yaml:"log_path"`
 	Exclude      []string `yaml:"exclude_lines"`
 	Include      []string `yaml:"include_lines"`
