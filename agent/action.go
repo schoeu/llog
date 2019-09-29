@@ -145,8 +145,6 @@ func doPush(SysInfo bool, st time.Time, text []byte, apiServer string, confMaxBy
 		}
 	}
 
-	vv, _ := json.Marshal(combineTags(rs))
-	fmt.Println(string(vv))
 	if apiServer != "" {
 		go PushData(combineTags(rs), apiServer)
 	}
