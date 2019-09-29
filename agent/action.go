@@ -104,8 +104,13 @@ func pushLog(logFile string, conf util.Config) {
 
 			rs = util.CombineData(nodeInfo, psInfo, conf.NoSysInfo)
 		} else {
+			textByte := []byte(line.Text)
+			maxByte := conf.MaxBytes
+			if maxByte != 0 && len(textByte) > maxByte {
+				textByte = textByte[:maxByte]
+			}
 			rs = map[string]interface{}{
-				"@message": line.Text,
+				"@message": string(textByte),
 			}
 		}
 		if logServer != "" {

@@ -17,6 +17,7 @@ type Config struct {
 	Exclude      []string
 	Include      []string
 	ExcludeFiles []string
+	MaxBytes     int
 }
 
 func GetCwd() string {
