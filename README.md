@@ -86,6 +86,19 @@ nohup ./lla >> lla_nohup.log 2>&1 &
 nohup ./lla ./config.json >> lla_nohup.log 2>&1 &
 ```
 
+## 上报数据格式
+```json
+{
+"@logId": "cc621467-b53e-4e76-84b5-5679567c986f",
+"@message": "log content here...",
+"@sysInfo": "{\"dataTime\":\"2019-09-29T18:09:17\",\"logicalCores\":16...}",
+"@timestamps": 1569751757188,
+"@type": "LLOG",
+"@version": "1.0.0"
+}
+
+```
+
 ## TODO
 - [x] 获取系统信息（cpu，内存，磁盘，网络）
 - [x] 支持Glob语法批量指定日志
