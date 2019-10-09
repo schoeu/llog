@@ -15,6 +15,8 @@ import (
 	"github.com/urfave/cli"
 )
 
+type logStruct map[string]interface{}
+
 func StartAction(c *cli.Context) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -73,9 +75,14 @@ func pushLog(logFile string, conf util.Config) {
 			fmt.Println(err)
 		}
 	}()
+
+	seekType := io.SeekStart
+	if conf.TailFiles {
+		seekType = io.SeekEnd
+	}
 	t, err := tail.TailFile(logFile, tail.Config{
 		Location: &tail.SeekInfo{
-			Whence: io.SeekEnd,
+			Whence: seekType,
 		},
 		Follow: true,
 	})
@@ -116,7 +123,7 @@ func pushLog(logFile string, conf util.Config) {
 }
 
 func doPush(SysInfo bool, st time.Time, text []byte, apiServer string, confMaxByte int) {
-	var rs map[string]interface{}
+	var rs logStruct
 
 	if confMaxByte != 0 && len(text) > confMaxByte {
 		text = text[:confMaxByte]
@@ -135,12 +142,12 @@ func doPush(SysInfo bool, st time.Time, text []byte, apiServer string, confMaxBy
 
 		sysInfo, err := json.Marshal(psInfo)
 		util.ErrHandler(err)
-		rs = util.CombineData(map[string]interface{}{
+		rs = util.CombineData(logStruct{
 			"@sysInfo": string(sysInfo),
 			"@message": string(text),
 		})
 	} else {
-		rs = map[string]interface{}{
+		rs = logStruct{
 			"@message": string(text),
 		}
 	}
@@ -150,7 +157,7 @@ func doPush(SysInfo bool, st time.Time, text []byte, apiServer string, confMaxBy
 	}
 }
 
-func combineTags(rs map[string]interface{}) map[string]interface{} {
+func combineTags(rs logStruct) logStruct {
 	// 日志签名
 	rs["@version"] = util.Version
 	rs["@logId"] = util.UUID()
@@ -159,6 +166,6 @@ func combineTags(rs map[string]interface{}) map[string]interface{} {
 	return rs
 }
 
-func StopAction(c *cli.Context) {
-	fmt.Println("stop")
-}
+//func StopAction(c *cli.Context) {
+//	fmt.Println("stop")
+//}

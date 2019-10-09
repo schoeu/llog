@@ -20,6 +20,7 @@
 # 把收集到的日志发送到指定API
 # 请求boby中带有JSON数据，以POST方法发送至指定接口
 api_server: "http://127.0.0.1:9200/nma/logs"
+tail_files: true
 #elasticsearch:
   #host: ["http://127.0.0.1:9200/nma"]
   # 输出认证.

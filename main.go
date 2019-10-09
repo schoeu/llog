@@ -21,13 +21,13 @@ func main() {
 	}()
 
 	app.Action = agent.StartAction
-	app.Commands = []cli.Command{
-		{
-			Name:   "stop",
-			Usage:  "stop llog.",
-			Action: agent.StopAction,
-		},
-	}
+	//app.Commands = []cli.Command{
+	//	{
+	//		Name:   "stop",
+	//		Usage:  "stop llog.",
+	//		Action: agent.StopAction,
+	//	},
+	//}
 	err := app.Run(os.Args)
 	util.ErrHandler(err)
 }

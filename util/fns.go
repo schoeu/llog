@@ -18,6 +18,7 @@ type Config struct {
 	ExcludeFiles []string `yaml:"exclude_files"`
 	MaxBytes     int      `yaml:"max_bytes"`
 	ApiServer    string   `yaml:"api_server"`
+	TailFiles    bool     `yaml:"tail_files"`
 	Multiline    struct {
 		Pattern  string
 		MaxLines int `yaml:"max_lines"`

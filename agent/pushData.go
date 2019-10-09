@@ -12,7 +12,7 @@ import (
 	"github.com/schoeu/llog/util"
 )
 
-func PushData(data map[string]interface{}, server string) {
+func PushData(data logStruct, server string) {
 	d, err := json.Marshal(data)
 
 	client := &http.Client{
