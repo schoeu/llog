@@ -113,7 +113,8 @@ nohup ./lla ./config.json >> lla_nohup.log 2>&1 &
 - [x] API, ES请求Timeout设置
 - [x] 多行日志匹配，一般用于错误堆栈信息收集
 - [x] 多行日志匹配限制行上限
+- [x] 可配置从日志文件起始或尾部进行日志监听
+- [x] 新增文件检测
 - [ ] 文件状态保存
-- [ ] 新增文件检测
 - [ ] output支持redis
 - [ ] output支持kafka

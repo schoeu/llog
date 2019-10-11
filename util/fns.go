@@ -11,15 +11,16 @@ import (
 )
 
 type Config struct {
-	SysInfo      bool     `yaml:"sys_info"`
-	LogDir       []string `yaml:"log_path"`
-	Exclude      []string `yaml:"exclude_lines"`
-	Include      []string `yaml:"include_lines"`
-	ExcludeFiles []string `yaml:"exclude_files"`
-	MaxBytes     int      `yaml:"max_bytes"`
-	ApiServer    string   `yaml:"api_server"`
-	TailFiles    bool     `yaml:"tail_files"`
-	Multiline    struct {
+	SysInfo       bool     `yaml:"sys_info"`
+	LogDir        []string `yaml:"log_path"`
+	Exclude       []string `yaml:"exclude_lines"`
+	Include       []string `yaml:"include_lines"`
+	ExcludeFiles  []string `yaml:"exclude_files"`
+	MaxBytes      int      `yaml:"max_bytes"`
+	ApiServer     string   `yaml:"api_server"`
+	TailFiles     bool     `yaml:"tail_files"`
+	ScanFrequency int      `yaml:"scan_frequency"`
+	Multiline     struct {
 		Pattern  string
 		MaxLines int `yaml:"max_lines"`
 	}
