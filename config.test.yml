@@ -2,7 +2,7 @@
 # 是否上报系统级别日志（cpu，内存，磁盘，网络）, 默认为false，不上报
 #sys_info: true
 # 存放各类日志文件的glob匹配路径
-#log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/*","/path/to/error/log/.log"]
+#log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/**/*.log","/path/to/error/log/.log"]
 # 在输入中排除符合正则表达式列表的日志行
 #exclude_lines: ["test"]
 # 包含输入中符合正则表达式列表的日志行
@@ -19,6 +19,8 @@
 # 输出配置:
 # 把收集到的日志发送到指定API
 # 请求boby中带有JSON数据，以POST方法发送至指定接口
+log_path:
+  - /var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/**/*.log
 api_server: "http://127.0.0.1:9200/nma/logs"
 tail_files: true
 #elasticsearch:

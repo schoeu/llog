@@ -3,8 +3,6 @@ package agent
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"time"
@@ -12,10 +10,12 @@ import (
 	"github.com/schoeu/llog/util"
 )
 
-func PushData(data logStruct, server string) {
-	d, err := json.Marshal(data)
+var (
+	hasClient bool
+)
 
-	client := &http.Client{
+func getClint() http.Client {
+	client := http.Client{
 		Transport: &http.Transport{
 			Dial: func(network, addr string) (net.Conn, error) {
 				conn, err := net.DialTimeout(network, addr, time.Second*2)
@@ -28,6 +28,17 @@ func PushData(data logStruct, server string) {
 			ResponseHeaderTimeout: time.Second * 90,
 		},
 	}
+	hasClient = true
+	return client
+}
+
+func pushData(data logStruct, server string) {
+	d, err := json.Marshal(data)
+	var client http.Client
+	if !hasClient {
+		client = getClint()
+	}
+
 	request, err := http.NewRequest("POST", server, bytes.NewBuffer(d))
 	request.Header.Set("Content-Type", "application/json")
 	if err != nil {
@@ -37,7 +48,7 @@ func PushData(data logStruct, server string) {
 	resp, err := client.Do(request)
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	//_, err = ioutil.ReadAll(resp.Body)
 	util.ErrHandler(err)
-	fmt.Println("log server response:\n", string(body))
+	//fmt.Println("log server response:\n", string(body))
 }

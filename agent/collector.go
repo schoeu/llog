@@ -17,7 +17,7 @@ import (
 type logStruct map[string]interface{}
 
 var (
-	allPath = map[string]int{}
+	allPath = map[string]int64{}
 )
 
 func fileGlob() {
@@ -33,8 +33,8 @@ func fileGlob() {
 				if len(excludeFiles) > 0 && util.IsInclude(v, excludeFiles) {
 					continue
 				}
+				fmt.Println("watch new file: ", v)
 				go pushLog(v, gConf)
-
 				allPath[v] = 1
 			}
 		}
@@ -66,18 +66,23 @@ func pushLog(logFile string, conf util.Config) {
 	}
 	t, err := tail.TailFile(logFile, tail.Config{
 		Location: &tail.SeekInfo{
+			Offset: 0,
 			Whence: seekType,
 		},
 		Follow: true,
 	})
+
 	util.ErrHandler(err)
 
 	st := time.Now()
 	var logContent bytes.Buffer
 
 	include, exclude, apiServer, multiline := conf.Include, conf.Exclude, conf.ApiServer, conf.Multiline.Pattern
-	SysInfo, confMaxByte, maxLines := conf.SysInfo, conf.MaxBytes, conf.Multiline.MaxLines
+	sysInfo, confMaxByte, maxLines := conf.SysInfo, conf.MaxBytes, conf.Multiline.MaxLines
 	for line := range t.Lines {
+		//offset, _ := t.Tell()
+		//allPath[logFile] = offset
+
 		text := line.Text
 		if len(include) > 0 && !util.IsInclude(text, include) {
 			continue
@@ -90,7 +95,7 @@ func pushLog(logFile string, conf util.Config) {
 			// 匹配开始头
 			if util.IsInclude(text, []string{multiline}) {
 				if logContent.Len() > 0 {
-					doPush(SysInfo, st, logContent.Bytes(), apiServer, confMaxByte)
+					doPush(sysInfo, st, logContent.Bytes(), apiServer, confMaxByte)
 					logContent = bytes.Buffer{}
 				}
 			}
@@ -100,20 +105,20 @@ func pushLog(logFile string, conf util.Config) {
 				continue
 			}
 		} else {
-			doPush(SysInfo, st, []byte(text), apiServer, confMaxByte)
+			doPush(sysInfo, st, []byte(text), apiServer, confMaxByte)
 		}
 	}
 	util.ErrHandler(err)
 }
 
-func doPush(SysInfo bool, st time.Time, text []byte, apiServer string, confMaxByte int) {
+func doPush(sysInfo bool, st time.Time, text []byte, apiServer string, confMaxByte int) {
 	var rs logStruct
 
 	if confMaxByte != 0 && len(text) > confMaxByte {
 		text = text[:confMaxByte]
 	}
 
-	if SysInfo {
+	if sysInfo {
 		var psInfo gopsinfo.PsInfo
 		et := time.Now()
 		during := et.Sub(st)
@@ -124,10 +129,10 @@ func doPush(SysInfo bool, st time.Time, text []byte, apiServer string, confMaxBy
 		psInfo = gopsinfo.GetPsInfo(during)
 		st = et
 
-		sysInfo, err := json.Marshal(psInfo)
+		sysData, err := json.Marshal(psInfo)
 		util.ErrHandler(err)
 		rs = util.CombineData(logStruct{
-			"@sysInfo": string(sysInfo),
+			"@sysInfo": string(sysData),
 			"@message": string(text),
 		})
 	} else {
@@ -137,7 +142,7 @@ func doPush(SysInfo bool, st time.Time, text []byte, apiServer string, confMaxBy
 	}
 
 	if apiServer != "" {
-		go PushData(combineTags(rs), apiServer)
+		go pushData(combineTags(rs), apiServer)
 	}
 }
 
