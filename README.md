@@ -49,6 +49,8 @@ mv lla_32bit lla
 #exclude_files: ["\\d{4}.log"]
 # 默认为false, 从文件开始处重新发送所有内容。设置为true会从文件尾开始监控文件新增内容把新增的每一行文件进行发送
 #tail_files: false
+#检测是否有新增日志文件的频率，默认为10秒
+scan_frequency: 10
 # 多行匹配
 #multiline:
   # 多行匹配点
