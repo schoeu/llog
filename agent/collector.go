@@ -170,19 +170,3 @@ func combineTags(rs logStruct) logStruct {
 	rs["@timestamps"] = time.Now().UnixNano() / 1e6
 	return rs
 }
-
-func closeFileHandle() {
-	fmt.Println("closeFileHandle")
-	conf := util.GetConfig()
-	aliveTime := conf.CloseInactive
-	for key, v := range allPath {
-		if !v.alive {
-			if time.Since(allPath[key].lastRead) > time.Second*time.Duration(aliveTime) {
-				tailErr := v.tail.Stop()
-				delete(allPath, key)
-				util.ErrHandler(tailErr)
-				// delete map data.
-			}
-		}
-	}
-}

@@ -10,12 +10,10 @@ import (
 	"github.com/schoeu/llog/util"
 )
 
-var (
-	hasClient bool
-)
+var client *http.Client
 
-func getClint() http.Client {
-	client := http.Client{
+func getClint() *http.Client {
+	client = &http.Client{
 		Transport: &http.Transport{
 			Dial: func(network, addr string) (net.Conn, error) {
 				conn, err := net.DialTimeout(network, addr, time.Second*2)
@@ -28,14 +26,12 @@ func getClint() http.Client {
 			ResponseHeaderTimeout: time.Second * 90,
 		},
 	}
-	hasClient = true
 	return client
 }
 
 func pushData(data logStruct, server string) {
 	d, err := json.Marshal(data)
-	var client http.Client
-	if !hasClient {
+	if client == nil {
 		client = getClint()
 	}
 

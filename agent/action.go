@@ -36,18 +36,11 @@ func StartAction(c *cli.Context) {
 
 	util.ErrHandler(err)
 
-	sf := conf.ScanFrequency
-	if sf < 1 {
-		sf = 10
-	}
 	// log file scan schedule.
-	go schedule(sf, fileGlob)
-	ci := conf.CloseInactive
-	if ci < 1 {
-		ci = 300
-	}
-	fmt.Println("aa")
-	schedule(ci, closeFileHandle)
+	go scanFiles(fileGlob)
+
+	// close file handle schedule.
+	closeFileHandle()
 }
 
 //func StopAction(c *cli.Context) {
