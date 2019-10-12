@@ -27,7 +27,7 @@ var (
 	allPath = map[string]allLogState{}
 )
 
-func fileGlob() {
+func fileGlob(allLogs []string) {
 	excludeFiles := util.GetConfig().ExcludeFiles
 	for _, v := range allLogs {
 		v = pathPreProcess(v)
@@ -40,7 +40,6 @@ func fileGlob() {
 				if len(excludeFiles) > 0 && util.IsInclude(v, excludeFiles) {
 					continue
 				}
-				fmt.Println("watch new file: ", v)
 				go logFilter(v)
 			}
 		}

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func scanFiles(fn func()) {
+func scanFiles(fn func([]string), allLogs []string) {
 	conf := util.GetConfig()
 	sf := conf.ScanFrequency
 	if sf < 1 {
@@ -14,7 +14,7 @@ func scanFiles(fn func()) {
 	ticker := time.NewTicker(time.Duration(sf) * time.Second)
 	for {
 		<-ticker.C
-		fn()
+		fn(allLogs)
 	}
 }
 

@@ -7,10 +7,6 @@ import (
 	"path/filepath"
 )
 
-var (
-	allLogs []string
-)
-
 func StartAction(c *cli.Context) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -29,15 +25,13 @@ func StartAction(c *cli.Context) {
 		logFiles = append(logFiles, filepath.Join(logFileDir, util.LogDir, util.FilePattern))
 	}
 
-	allLogs = logFiles
-
 	// 监控日志收集
-	fileGlob()
+	fileGlob(logFiles)
 
 	util.ErrHandler(err)
 
 	// log file scan schedule.
-	go scanFiles(fileGlob)
+	go scanFiles(fileGlob, logFiles)
 
 	// close file handle schedule.
 	closeFileHandle()
