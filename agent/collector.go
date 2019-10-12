@@ -16,11 +16,19 @@ import (
 
 type logStruct map[string]interface{}
 
+type allLogState struct {
+	offset   int64
+	lastRead time.Time
+	alive    bool
+	tail     *tail.Tail
+}
+
 var (
-	allPath = map[string]int64{}
+	allPath = map[string]allLogState{}
 )
 
 func fileGlob() {
+	excludeFiles := util.GetConfig().ExcludeFiles
 	for _, v := range allLogs {
 		v = pathPreProcess(v)
 		paths, err := filepath.Glob(v)
@@ -28,14 +36,12 @@ func fileGlob() {
 		util.ErrHandler(err)
 		for _, v := range paths {
 			// log path store.
-			if allPath[v] == 0 {
-				excludeFiles := gConf.ExcludeFiles
+			if !allPath[v].alive {
 				if len(excludeFiles) > 0 && util.IsInclude(v, excludeFiles) {
 					continue
 				}
 				fmt.Println("watch new file: ", v)
-				go pushLog(v, gConf)
-				allPath[v] = 1
+				go logFilter(v)
 			}
 		}
 	}
@@ -53,7 +59,8 @@ func pathPreProcess(p string) string {
 	return p
 }
 
-func pushLog(logFile string, conf util.Config) {
+func logFilter(logFile string) {
+	conf := util.GetConfig()
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println(err)
@@ -72,6 +79,11 @@ func pushLog(logFile string, conf util.Config) {
 		Follow: true,
 	})
 
+	//allPath[logFile] = allLogState{
+	//	tail: t,
+	//	alive: true,
+	//}
+
 	util.ErrHandler(err)
 
 	st := time.Now()
@@ -82,6 +94,9 @@ func pushLog(logFile string, conf util.Config) {
 	for line := range t.Lines {
 		//offset, _ := t.Tell()
 		//allPath[logFile] = offset
+		//allPath[logFile] = allLogState{
+		//	lastRead: time.Now(),
+		//}
 
 		text := line.Text
 		if len(include) > 0 && !util.IsInclude(text, include) {
@@ -90,12 +105,17 @@ func pushLog(logFile string, conf util.Config) {
 		if len(exclude) > 0 && util.IsInclude(text, exclude) {
 			continue
 		}
+
+		if confMaxByte != 0 && len(text) > confMaxByte {
+			text = text[:confMaxByte]
+		}
+
 		// 多行模式
 		if multiline != "" {
 			// 匹配开始头
 			if util.IsInclude(text, []string{multiline}) {
 				if logContent.Len() > 0 {
-					doPush(sysInfo, st, logContent.Bytes(), apiServer, confMaxByte)
+					doPush(sysInfo, st, logContent.Bytes(), apiServer)
 					logContent = bytes.Buffer{}
 				}
 			}
@@ -105,18 +125,14 @@ func pushLog(logFile string, conf util.Config) {
 				continue
 			}
 		} else {
-			doPush(sysInfo, st, []byte(text), apiServer, confMaxByte)
+			doPush(sysInfo, st, []byte(text), apiServer)
 		}
 	}
 	util.ErrHandler(err)
 }
 
-func doPush(sysInfo bool, st time.Time, text []byte, apiServer string, confMaxByte int) {
+func doPush(sysInfo bool, st time.Time, text []byte, apiServer string) {
 	var rs logStruct
-
-	if confMaxByte != 0 && len(text) > confMaxByte {
-		text = text[:confMaxByte]
-	}
 
 	if sysInfo {
 		var psInfo gopsinfo.PsInfo
@@ -153,4 +169,20 @@ func combineTags(rs logStruct) logStruct {
 	rs["@type"] = util.AppName
 	rs["@timestamps"] = time.Now().UnixNano() / 1e6
 	return rs
+}
+
+func closeFileHandle() {
+	fmt.Println("closeFileHandle")
+	conf := util.GetConfig()
+	aliveTime := conf.CloseInactive
+	for key, v := range allPath {
+		if !v.alive {
+			if time.Since(allPath[key].lastRead) > time.Second*time.Duration(aliveTime) {
+				tailErr := v.tail.Stop()
+				delete(allPath, key)
+				util.ErrHandler(tailErr)
+				// delete map data.
+			}
+		}
+	}
 }

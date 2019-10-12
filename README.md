@@ -9,11 +9,6 @@
 
 ## 安装
 
-### 默认配置
-```
-wget -qO- http://qiniucdn.schoeu.com/install.sh | sh
-```
-
 ### 指定配置
 
 #### 1. 下载对应版本LLA
@@ -50,7 +45,9 @@ mv lla_32bit lla
 # 默认为false, 从文件开始处重新发送所有内容。设置为true会从文件尾开始监控文件新增内容把新增的每一行文件进行发送
 #tail_files: false
 #检测是否有新增日志文件的频率，默认为10秒
-scan_frequency: 10
+#scan_frequency: 10
+# 最后一次读取文件后，持续时间内没有再写入日志，将关闭文件句柄，默认是 5m
+#close_inactive: 300
 # 多行匹配
 #multiline:
   # 多行匹配点
@@ -87,7 +84,7 @@ api_server: "http://127.0.0.1:9200/nma/logs"
 nohup ./lla >> lla_nohup.log 2>&1 &
 
 # 指定配置文件启动
-nohup ./lla ./config.json >> lla_nohup.log 2>&1 &
+nohup ./lla ./lla_conf.yml >> lla_nohup.log 2>&1 &
 ```
 
 ## 上报数据格式
