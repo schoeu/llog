@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/hpcloud/tail"
@@ -14,14 +15,7 @@ import (
 	"github.com/schoeu/llog/util"
 )
 
-type logStruct map[string]interface{}
-
-type allLogState struct {
-	offset   int64
-	lastRead time.Time
-	alive    bool
-	tail     *tail.Tail
-}
+type logStruct map[string]string
 
 var (
 	allPath = map[string]allLogState{}
@@ -78,11 +72,6 @@ func logFilter(logFile string) {
 		Follow: true,
 	})
 
-	//allPath[logFile] = allLogState{
-	//	tail: t,
-	//	alive: true,
-	//}
-
 	util.ErrHandler(err)
 
 	st := time.Now()
@@ -92,10 +81,6 @@ func logFilter(logFile string) {
 	sysInfo, confMaxByte, maxLines := conf.SysInfo, conf.MaxBytes, conf.Multiline.MaxLines
 	for line := range t.Lines {
 		//offset, _ := t.Tell()
-		//allPath[logFile] = offset
-		//allPath[logFile] = allLogState{
-		//	lastRead: time.Now(),
-		//}
 
 		text := line.Text
 		if len(include) > 0 && !util.IsInclude(text, include) {
@@ -166,6 +151,6 @@ func combineTags(rs logStruct) logStruct {
 	rs["@version"] = util.Version
 	rs["@logId"] = util.UUID()
 	rs["@type"] = util.AppName
-	rs["@timestamps"] = time.Now().UnixNano() / 1e6
+	rs["@timestamps"] = strconv.FormatInt(time.Now().UnixNano()/1e6, 10)
 	return rs
 }

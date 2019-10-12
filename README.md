@@ -66,16 +66,6 @@ api_server: "http://127.0.0.1:9200/nma/logs"
   #password: "s3cr3t"
   # elasticsearch请求超时事件。默认90秒.
   #timeout: 90
-
-# redis配置
-#redis:
-#  enabled: true
-#  hosts: ["192.168.10.188"]
-#  port: 6379
-#  datatype: list
-#  key: "llog"
-#  db: 0
-
 ```
 
 #### 3. 后台启动lla agent
@@ -114,6 +104,7 @@ nohup ./lla ./lla_conf.yml >> lla_nohup.log 2>&1 &
 - [x] 多行日志匹配限制行上限
 - [x] 可配置从日志文件起始或尾部进行日志监听
 - [x] 新增文件检测
+- [x] 长期不活动的文件自动关闭文件句柄
 - [ ] 文件状态保存
 - [ ] output支持redis
 - [ ] output支持kafka
