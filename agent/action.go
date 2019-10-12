@@ -2,6 +2,7 @@ package agent
 
 import (
 	"fmt"
+
 	"github.com/schoeu/llog/util"
 	"github.com/urfave/cli"
 	"path/filepath"
@@ -25,7 +26,9 @@ func StartAction(c *cli.Context) {
 		logFiles = append(logFiles, filepath.Join(logFileDir, util.LogDir, util.FilePattern))
 	}
 
-	// 监控日志收集
+	go updateState()
+
+	// collect log.
 	fileGlob(logFiles)
 
 	util.ErrHandler(err)

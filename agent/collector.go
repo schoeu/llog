@@ -19,6 +19,7 @@ type logStruct map[string]string
 
 var (
 	allPath = map[string]allLogState{}
+	tailIns map[string]*tail.Tail
 )
 
 func fileGlob(allLogs []string) {
@@ -30,9 +31,15 @@ func fileGlob(allLogs []string) {
 		util.ErrHandler(err)
 		for _, v := range paths {
 			// log path store.
-			if !allPath[v].alive {
+			fmt.Println("-------->", v, allPath[v]["alive"])
+			if allPath[v] == nil || !allPath[v]["alive"].(bool) {
 				if len(excludeFiles) > 0 && util.IsInclude(v, excludeFiles) {
 					continue
+				}
+				lsCh <- map[string]allLogState{
+					v: {
+						"alive": true,
+					},
 				}
 				go logFilter(v)
 			}
@@ -74,15 +81,28 @@ func logFilter(logFile string) {
 
 	util.ErrHandler(err)
 
+	lsCh <- map[string]allLogState{
+		logFile: {
+			"tail": t,
+		},
+	}
+
 	st := time.Now()
 	var logContent bytes.Buffer
 
 	include, exclude, apiServer, multiline := conf.Include, conf.Exclude, conf.ApiServer, conf.Multiline.Pattern
 	sysInfo, confMaxByte, maxLines := conf.SysInfo, conf.MaxBytes, conf.Multiline.MaxLines
 	for line := range t.Lines {
-		//offset, _ := t.Tell()
+		offset, _ := t.Tell()
+		lsCh <- map[string]allLogState{
+			logFile: {
+				"offset":     offset,
+				"lastReadAt": time.Now().Unix(),
+			},
+		}
 
 		text := line.Text
+		fmt.Println(text)
 		if len(include) > 0 && !util.IsInclude(text, include) {
 			continue
 		}
@@ -116,8 +136,9 @@ func logFilter(logFile string) {
 }
 
 func doPush(sysInfo bool, st time.Time, text []byte, apiServer string) {
-	var rs logStruct
-
+	var rs = logStruct{
+		"@message": string(text),
+	}
 	if sysInfo {
 		var psInfo gopsinfo.PsInfo
 		et := time.Now()
@@ -131,14 +152,7 @@ func doPush(sysInfo bool, st time.Time, text []byte, apiServer string) {
 
 		sysData, err := json.Marshal(psInfo)
 		util.ErrHandler(err)
-		rs = util.CombineData(logStruct{
-			"@sysInfo": string(sysData),
-			"@message": string(text),
-		})
-	} else {
-		rs = logStruct{
-			"@message": string(text),
-		}
+		rs["@sysInfo"] = string(sysData)
 	}
 
 	if apiServer != "" {
