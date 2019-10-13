@@ -141,7 +141,6 @@ func doPush(sysInfo bool, st time.Time, text []byte, apiServer string) {
 		util.ErrHandler(err)
 		rs["@sysInfo"] = string(sysData)
 	}
-
 	if apiServer != "" {
 		go pushData(combineTags(rs), apiServer)
 	}

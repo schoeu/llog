@@ -4,6 +4,6 @@ var (
 	Version     = "1.0.0"
 	AppName     = "LLOG"
 	AppUsage    = "Agent for llog."
-	LogDir      = ".nm_logs"
+	LogDir      = ".llogs"
 	FilePattern = "*.log"
 )

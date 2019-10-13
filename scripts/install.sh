@@ -16,5 +16,5 @@ then
 fi
 
 chmod +x lla
-kill -9 `ps aux | grep lla | head -n 1 | awk '{print $2}'`
-nohup ./lla >> ./lla_nohup.log 2>&1 &
+#kill -9 `ps aux | grep lla | head -n 1 | awk '{print $2}'`
+#nohup ./lla >> ./lla_nohup.log 2>&1 &

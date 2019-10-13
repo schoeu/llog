@@ -23,6 +23,10 @@ log_path:
   - /var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/**/*.log
 api_server: "http://127.0.0.1:9200/nma/logs"
 tail_files: true
+#检测是否有新增日志文件的频率，默认为10秒
+#scan_frequency: 10
+# 最后一次读取文件后，持续时间内没有再写入日志，将关闭文件句柄，默认是 5m
+#close_inactive: 300
 #elasticsearch:
   #host: ["http://127.0.0.1:9200/nma"]
   # 输出认证.
@@ -30,12 +34,3 @@ tail_files: true
   #password: "s3cr3t"
   # elasticsearch请求超时事件。默认90秒.
   #timeout: 90
-
-# redis配置
-#redis:
-#  enabled: true
-#  hosts: ["192.168.10.188"]
-#  port: 6379
-#  datatype: list
-#  key: "llog"
-#  db: 0

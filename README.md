@@ -94,6 +94,7 @@ nohup ./lla ./lla_conf.yml >> lla_nohup.log 2>&1 &
 - [x] 获取系统信息（cpu，内存，磁盘，网络）
 - [x] 支持Glob语法批量指定日志
 - [x] output支持ElasticSearch
+- [x] output支持HTTP API
 - [x] 在输入中排除符合正则表达式列表的日志行
 - [x] 包含输入中符合正则表达式列表的日志行
 - [x] 忽略掉符合正则表达式列表的文件
@@ -105,6 +106,4 @@ nohup ./lla ./lla_conf.yml >> lla_nohup.log 2>&1 &
 - [x] 可配置从日志文件起始或尾部进行日志监听
 - [x] 新增文件检测
 - [x] 自动关闭长期不活动文件句柄
-- [ ] 文件状态保存
-- [ ] output支持redis
-- [ ] output支持kafka
+- [x] 文件状态保存
