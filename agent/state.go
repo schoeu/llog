@@ -1,36 +1,36 @@
 package agent
 
 import (
-	"fmt"
 	"github.com/hpcloud/tail"
 )
 
-//type allLogState struct {
-//	offset   int64
-//	lastRead time.Time
-//	alive    bool
-//	tail     *tail.Tail
-//}
+// Element: [offset, lastRead]
+type logStatus map[string][2]int64
 
-type allLogState map[string]interface{}
-
-var lsCh = make(chan map[string]allLogState)
+var lsCh = make(chan logStatus)
 var tailCh = make(chan map[string]*tail.Tail)
+var lsCtt = logStatus{}
+var delCh = make(chan string)
 
 func updateState() {
 	for {
 		select {
 		case ls := <-lsCh:
-			for data := range ls {
-				fmt.Println("ls", data)
+			for key, val := range ls {
+				lsCtt[key] = val
 			}
 		case tailData := <-tailCh:
 			if tailData != nil {
 				for k, v := range tailData {
+					if tailIns == nil {
+						tailIns = map[string]*tail.Tail{}
+					}
 					tailIns[k] = v
-					fmt.Println("tailIns", tailIns)
 				}
 			}
+		case k := <-delCh:
+			delete(lsCtt, k)
+			delete(tailIns, k)
 		}
 	}
 }

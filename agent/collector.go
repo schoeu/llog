@@ -18,7 +18,6 @@ import (
 type logStruct map[string]string
 
 var (
-	allPath = map[string]allLogState{}
 	tailIns map[string]*tail.Tail
 )
 
@@ -31,15 +30,9 @@ func fileGlob(allLogs []string) {
 		util.ErrHandler(err)
 		for _, v := range paths {
 			// log path store.
-			fmt.Println("-------->", v, allPath[v]["alive"])
-			if allPath[v] == nil || !allPath[v]["alive"].(bool) {
+			if tailIns[v] == nil {
 				if len(excludeFiles) > 0 && util.IsInclude(v, excludeFiles) {
 					continue
-				}
-				lsCh <- map[string]allLogState{
-					v: {
-						"alive": true,
-					},
 				}
 				go logFilter(v)
 			}
@@ -81,10 +74,8 @@ func logFilter(logFile string) {
 
 	util.ErrHandler(err)
 
-	lsCh <- map[string]allLogState{
-		logFile: {
-			"tail": t,
-		},
+	tailCh <- map[string]*tail.Tail{
+		logFile: t,
 	}
 
 	st := time.Now()
@@ -94,15 +85,11 @@ func logFilter(logFile string) {
 	sysInfo, confMaxByte, maxLines := conf.SysInfo, conf.MaxBytes, conf.Multiline.MaxLines
 	for line := range t.Lines {
 		offset, _ := t.Tell()
-		lsCh <- map[string]allLogState{
-			logFile: {
-				"offset":     offset,
-				"lastReadAt": time.Now().Unix(),
-			},
+		lsCh <- logStatus{
+			logFile: {offset, time.Now().Unix()},
 		}
 
 		text := line.Text
-		fmt.Println(text)
 		if len(include) > 0 && !util.IsInclude(text, include) {
 			continue
 		}

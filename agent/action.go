@@ -25,7 +25,6 @@ func StartAction(c *cli.Context) {
 		logFileDir := util.GetTempDir()
 		logFiles = append(logFiles, filepath.Join(logFileDir, util.LogDir, util.FilePattern))
 	}
-
 	go updateState()
 
 	// collect log.

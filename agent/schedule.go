@@ -1,7 +1,6 @@
 package agent
 
 import (
-	"github.com/hpcloud/tail"
 	"github.com/schoeu/llog/util"
 	"time"
 )
@@ -28,16 +27,16 @@ func closeFileHandle() {
 	ticker := time.NewTicker(time.Duration(aliveTime) * time.Second)
 	for {
 		<-ticker.C
-		for key, v := range allPath {
-			if !v["alive"].(bool) {
-				if time.Since(v["lastReadAt"].(time.Time)) > time.Second*time.Duration(aliveTime) {
-					tailErr := v["tail"].(*tail.Tail).Stop()
-					delete(allPath, key)
+		for key, v := range tailIns {
+			if v != nil {
+
+				if time.Since(time.Unix(lsCtt[key][1], 0)) > time.Second*time.Duration(aliveTime) {
+					tailErr := v.Stop()
+					delCh <- key
 					util.ErrHandler(tailErr)
 					// delete map data.
 				}
 			}
 		}
 	}
-
 }

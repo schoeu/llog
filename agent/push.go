@@ -45,7 +45,4 @@ func pushData(data logStruct, server string) {
 	defer resp.Body.Close()
 
 	util.ErrHandler(err)
-
-	//_, err = ioutil.ReadAll(resp.Body)
-	//fmt.Println("log server response:\n", string(body))
 }
