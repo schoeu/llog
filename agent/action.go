@@ -35,6 +35,11 @@ func StartAction(c *cli.Context) {
 	// log file scan schedule.
 	go scanFiles(fileGlob, logFiles)
 
+	// init es
+	if conf.Elasticsearch.Enable && len(conf.Elasticsearch.Host) > 0 {
+		esInit()
+	}
+
 	// close file handle schedule.
 	closeFileHandle()
 }

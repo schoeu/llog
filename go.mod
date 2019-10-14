@@ -4,12 +4,10 @@ go 1.12
 
 require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
-	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/hpcloud/tail v1.0.0
+	github.com/olivere/elastic/v7 v7.0.7
 	github.com/satori/go.uuid v1.2.0
 	github.com/schoeu/gopsinfo v1.2.8
 	github.com/urfave/cli v1.22.1
-	gopkg.in/fsnotify.v1 v1.4.7 // indirect
-	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.2.2
 )

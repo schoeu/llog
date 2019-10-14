@@ -1,11 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/schoeu/llog/agent"
 	"github.com/schoeu/llog/util"
 	"github.com/urfave/cli"
-	"log"
-	"os"
 )
 
 func main() {
@@ -16,7 +17,7 @@ func main() {
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println(err)
+			fmt.Println(err)
 		}
 	}()
 

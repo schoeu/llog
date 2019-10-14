@@ -10,24 +10,30 @@ import (
 var cfg *Config
 
 type Config struct {
-	SysInfo       bool     `yaml:"sys_info"`
-	LogDir        []string `yaml:"log_path"`
-	Exclude       []string `yaml:"exclude_lines"`
-	Include       []string `yaml:"include_lines"`
-	ExcludeFiles  []string `yaml:"exclude_files"`
-	MaxBytes      int      `yaml:"max_bytes"`
-	ApiServer     string   `yaml:"api_server"`
-	TailFiles     bool     `yaml:"tail_files"`
-	ScanFrequency int      `yaml:"scan_frequency"`
-	CloseInactive int      `yaml:"close_inactive"`
+	SysInfo      bool     `yaml:"sys_info"`
+	LogDir       []string `yaml:"log_path"`
+	Exclude      []string `yaml:"exclude_lines"`
+	Include      []string `yaml:"include_lines"`
+	ExcludeFiles []string `yaml:"exclude_files"`
+	MaxBytes     int      `yaml:"max_bytes"`
+	//ApiServer     string   `yaml:"api_server"`
+	TailFiles     bool `yaml:"tail_files"`
+	ScanFrequency int  `yaml:"scan_frequency"`
+	CloseInactive int  `yaml:"close_inactive"`
 	Multiline     struct {
 		Pattern  string
 		MaxLines int `yaml:"max_lines"`
 	}
+	ApiServer struct {
+		Enable bool
+		Url    string
+	}
 	Elasticsearch struct {
+		Enable   bool
 		Host     []string
-		Protocal string
 		Index    string
+		Username string
+		Password string
 	}
 }
 

@@ -21,14 +21,16 @@
 # 请求boby中带有JSON数据，以POST方法发送至指定接口
 log_path:
   - /var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/**/*.log
-api_server: "http://127.0.0.1:9200/nma/logs"
+#api_server: "http://127.0.0.1:9200/nma/logs"
 tail_files: true
 #检测是否有新增日志文件的频率，默认为10秒
 #scan_frequency: 10
 # 最后一次读取文件后，持续时间内没有再写入日志，将关闭文件句柄，默认是 5m
 #close_inactive: 300
-#elasticsearch:
-  #host: ["http://127.0.0.1:9200/nma"]
+elasticsearch:
+  enable: true
+  host: ["http://127.0.0.1:9200/"]
+  index: "nma"
   # 输出认证.
   #username: "admin"
   #password: "s3cr3t"

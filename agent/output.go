@@ -2,15 +2,21 @@ package agent
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net"
 	"net/http"
 	"time"
 
+	"github.com/olivere/elastic/v7"
 	"github.com/schoeu/llog/util"
 )
 
-var client *http.Client
+var (
+	client   *http.Client
+	esClient *elastic.Client
+	esIndex  string
+)
 
 func getClint() *http.Client {
 	client = &http.Client{
@@ -29,7 +35,7 @@ func getClint() *http.Client {
 	return client
 }
 
-func pushData(data logStruct, server string) {
+func apiPush(data logStruct, server string) {
 	d, err := json.Marshal(data)
 	if client == nil {
 		client = getClint()
@@ -44,5 +50,28 @@ func pushData(data logStruct, server string) {
 	resp, err := client.Do(request)
 	defer resp.Body.Close()
 
+	util.ErrHandler(err)
+}
+
+func esInit() {
+	conf := util.GetConfig()
+	esConf := conf.Elasticsearch
+	client, err := elastic.NewClient(
+		elastic.SetURL(esConf.Host...),
+		elastic.SetBasicAuth(esConf.Username, esConf.Password),
+		elastic.SetSniff(false),
+	)
+	util.ErrHandler(err)
+	esClient = client
+	esIndex = conf.Elasticsearch.Index
+
+}
+
+func esPush(data logStruct) {
+	ctx := context.Background()
+	_, err := esClient.Index().
+		Index(esIndex).
+		BodyJson(data).
+		Do(ctx)
 	util.ErrHandler(err)
 }

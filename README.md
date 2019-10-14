@@ -58,14 +58,15 @@ mv lla_32bit lla
 # 输出配置:
 # 把收集到的日志发送到指定API
 # 请求boby中带有JSON数据，以POST方法发送至指定接口
-api_server: "http://127.0.0.1:9200/nma/logs"
+#api_server:
+  #enable: false
+  #url: "http://127.0.0.1:9200/nma"
 #elasticsearch:
+  #enable: false
   #host: ["http://127.0.0.1:9200/nma"]
   # 输出认证.
   #username: "admin"
   #password: "s3cr3t"
-  # elasticsearch请求超时事件。默认90秒.
-  #timeout: 90
 ```
 
 #### 3. 后台启动lla agent
@@ -90,7 +91,7 @@ nohup ./lla ./lla_conf.yml >> lla_nohup.log 2>&1 &
 
 ```
 
-## TODO
+## 特性
 - [x] 获取系统信息（cpu，内存，磁盘，网络）
 - [x] 支持Glob语法批量指定日志
 - [x] output支持ElasticSearch

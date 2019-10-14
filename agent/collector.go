@@ -81,8 +81,13 @@ func logFilter(logFile string) {
 	st := time.Now()
 	var logContent bytes.Buffer
 
-	include, exclude, apiServer, multiline := conf.Include, conf.Exclude, conf.ApiServer, conf.Multiline.Pattern
+	include, exclude, apiEnable, multiline := conf.Include, conf.Exclude, conf.ApiServer.Enable, conf.Multiline.Pattern
 	sysInfo, confMaxByte, maxLines := conf.SysInfo, conf.MaxBytes, conf.Multiline.MaxLines
+
+	var apiServer string
+	if apiEnable && conf.ApiServer.Url != "" {
+		apiServer = conf.ApiServer.Url
+	}
 	for line := range t.Lines {
 		offset, _ := t.Tell()
 		lsCh <- logStatus{
@@ -141,8 +146,13 @@ func doPush(sysInfo bool, st time.Time, text []byte, apiServer string) {
 		util.ErrHandler(err)
 		rs["@sysInfo"] = string(sysData)
 	}
+	combineData := combineTags(rs)
 	if apiServer != "" {
-		go pushData(combineTags(rs), apiServer)
+		go apiPush(combineData, apiServer)
+	}
+
+	if esClient != nil {
+		go esPush(combineData)
 	}
 }
 
