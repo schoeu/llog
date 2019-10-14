@@ -88,6 +88,7 @@ func logFilter(logFile string) {
 	if apiEnable && conf.ApiServer.Url != "" {
 		apiServer = conf.ApiServer.Url
 	}
+
 	for line := range t.Lines {
 		offset, _ := t.Tell()
 		lsCh <- logStatus{
@@ -124,6 +125,7 @@ func logFilter(logFile string) {
 			doPush(sysInfo, st, []byte(text), apiServer)
 		}
 	}
+
 	util.ErrHandler(err)
 }
 

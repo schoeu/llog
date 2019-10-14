@@ -13,11 +13,13 @@ import (
 )
 
 var (
-	client   *http.Client
-	esClient *elastic.Client
-	esIndex  string
+	client      *http.Client
+	esClient    *elastic.Client
+	indexServer *elastic.IndexService
+	esIndex     string
 )
 
+// http server api push.
 func getClint() *http.Client {
 	client = &http.Client{
 		Transport: &http.Transport{
@@ -53,6 +55,7 @@ func apiPush(data logStruct, server string) {
 	util.ErrHandler(err)
 }
 
+// es push.
 func esInit() {
 	conf := util.GetConfig()
 	esConf := conf.Elasticsearch
@@ -64,14 +67,17 @@ func esInit() {
 	util.ErrHandler(err)
 	esClient = client
 	esIndex = conf.Elasticsearch.Index
+	if esIndex != "" {
+		indexServer = esClient.Index().Index(esIndex)
+	}
 
+	//*IndexService
 }
 
 func esPush(data logStruct) {
-	ctx := context.Background()
-	_, err := esClient.Index().
-		Index(esIndex).
-		BodyJson(data).
-		Do(ctx)
-	util.ErrHandler(err)
+	if indexServer != nil {
+		_, err := indexServer.BodyJson(data).
+			Do(context.Background())
+		util.ErrHandler(err)
+	}
 }

@@ -16,14 +16,6 @@ func GetCwd() string {
 	return dir
 }
 
-func GetHomeDir() string {
-	dir, err := os.UserHomeDir()
-	if err != nil {
-		return ""
-	}
-	return dir
-}
-
 func GetTempDir() string {
 	return os.TempDir()
 }

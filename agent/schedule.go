@@ -1,15 +1,16 @@
 package agent
 
 import (
-	"github.com/schoeu/llog/util"
 	"time"
+
+	"github.com/schoeu/llog/util"
 )
 
 func scanFiles(fn func([]string), allLogs []string) {
 	conf := util.GetConfig()
 	sf := conf.ScanFrequency
 	if sf < 1 {
-		sf = 10
+		sf = 600
 	}
 	ticker := time.NewTicker(time.Duration(sf) * time.Second)
 	for {
@@ -29,12 +30,11 @@ func closeFileHandle() {
 		<-ticker.C
 		for key, v := range tailIns {
 			if v != nil {
-
 				if time.Since(time.Unix(lsCtt[key][1], 0)) > time.Second*time.Duration(aliveTime) {
-					tailErr := v.Stop()
-					delCh <- key
-					util.ErrHandler(tailErr)
+					err := v.Stop()
+					util.ErrHandler(err)
 					// delete map data.
+					delCh <- key
 				}
 			}
 		}
