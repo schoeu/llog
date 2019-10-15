@@ -46,7 +46,7 @@ mv lla_32bit lla
 #tail_files: false
 #检测是否有新增日志文件的频率，默认为10秒
 #scan_frequency: 10
-# 最后一次读取文件后，持续时间内没有再写入日志，将关闭文件句柄，默认是 5m
+# 最后一次读取文件后，持续时间内没有再写入日志，将关闭文件句柄，默认是 5mecho
 #close_inactive: 300
 # 多行匹配
 #multiline:

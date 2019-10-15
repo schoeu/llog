@@ -33,7 +33,7 @@ func StartAction(c *cli.Context) {
 	util.ErrHandler(err)
 
 	// log file scan schedule.
-	go scanFiles(fileGlob, logFiles)
+	//go scanFiles(fileGlob, logFiles)
 
 	// init es
 	if conf.Elasticsearch.Enable && len(conf.Elasticsearch.Host) > 0 {
@@ -43,7 +43,3 @@ func StartAction(c *cli.Context) {
 	// close file handle schedule.
 	closeFileHandle()
 }
-
-//func StopAction(c *cli.Context) {
-//	fmt.Println("stop")
-//}

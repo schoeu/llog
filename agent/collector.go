@@ -1,42 +1,30 @@
 package agent
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strconv"
 	"time"
 
-	"github.com/hpcloud/tail"
 	"github.com/schoeu/gopsinfo"
 	"github.com/schoeu/llog/util"
 )
 
 type logStruct map[string]string
 
-var (
-	tailIns map[string]*tail.Tail
-)
-
 func fileGlob(allLogs []string) {
-	excludeFiles := util.GetConfig().ExcludeFiles
 	for _, v := range allLogs {
 		v = pathPreProcess(v)
 		paths, err := filepath.Glob(v)
-
 		util.ErrHandler(err)
-		for _, v := range paths {
-			// log path store.
-			if tailIns[v] == nil {
-				if len(excludeFiles) > 0 && util.IsInclude(v, excludeFiles) {
-					continue
-				}
-				go logFilter(v)
-			}
-		}
+
+		// update file state.
+		initState(paths)
+		watch(paths)
 	}
 }
 
@@ -52,31 +40,20 @@ func pathPreProcess(p string) string {
 	return p
 }
 
-func logFilter(logFile string) {
+func tail(f *os.File, info [2]int64) {
+	//f.ReadAt()
+	reader := bufio.NewReader(f)
+	reader.ReadLine()
+	r := bufio.NewReader(f)
+}
+
+func logFilter(path []string) {
 	conf := util.GetConfig()
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println(err)
 		}
 	}()
-
-	seekType := io.SeekStart
-	if conf.TailFiles {
-		seekType = io.SeekEnd
-	}
-	t, err := tail.TailFile(logFile, tail.Config{
-		Location: &tail.SeekInfo{
-			Offset: 0,
-			Whence: seekType,
-		},
-		Follow: true,
-	})
-
-	util.ErrHandler(err)
-
-	tailCh <- map[string]*tail.Tail{
-		logFile: t,
-	}
 
 	st := time.Now()
 	var logContent bytes.Buffer

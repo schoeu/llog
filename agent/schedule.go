@@ -6,19 +6,6 @@ import (
 	"github.com/schoeu/llog/util"
 )
 
-func scanFiles(fn func([]string), allLogs []string) {
-	conf := util.GetConfig()
-	sf := conf.ScanFrequency
-	if sf < 1 {
-		sf = 600
-	}
-	ticker := time.NewTicker(time.Duration(sf) * time.Second)
-	for {
-		<-ticker.C
-		fn(allLogs)
-	}
-}
-
 func closeFileHandle() {
 	conf := util.GetConfig()
 	aliveTime := conf.CloseInactive
