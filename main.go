@@ -2,19 +2,14 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/schoeu/llog/agent"
 	"github.com/schoeu/llog/util"
 	"github.com/urfave/cli"
 )
-import _ "net/http/pprof"
 
 func main() {
-	go func() {
-		http.ListenAndServe("0.0.0.0:8080", nil)
-	}()
 	app := cli.NewApp()
 	app.Version = util.Version
 	app.Name = util.AppName

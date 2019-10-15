@@ -153,7 +153,7 @@ func doPush(sysInfo bool, st time.Time, text []byte, apiServer string) {
 		go apiPush(combineData, apiServer)
 	}
 
-	if esClient != nil {
+	if indexServer != nil {
 		go esPush(combineData)
 	}
 }

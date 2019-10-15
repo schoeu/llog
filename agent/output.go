@@ -14,7 +14,6 @@ import (
 
 var (
 	client      *http.Client
-	esClient    *elastic.Client
 	indexServer *elastic.IndexService
 	esIndex     string
 )
@@ -65,10 +64,9 @@ func esInit() {
 		elastic.SetSniff(false),
 	)
 	util.ErrHandler(err)
-	esClient = client
 	esIndex = conf.Elasticsearch.Index
 	if esIndex != "" {
-		indexServer = esClient.Index().Index(esIndex)
+		indexServer = client.Index().Index(esIndex)
 	}
 
 	//*IndexService
