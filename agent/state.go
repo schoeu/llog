@@ -15,8 +15,9 @@ var lsCh = make(chan logStatus)
 var fileCh = make(chan map[string]*os.File)
 var lsCtt = logStatus{}
 var delCh = make(chan string)
+var timeoutDel = make(chan int)
 
-//var changCh = make(chan string)
+var changCh = make(chan string)
 var fileIns map[string]*os.File
 
 func updateState() {
@@ -34,16 +35,24 @@ func updateState() {
 				lsCtt[k] = v
 			}
 		case k := <-delCh:
-			delete(lsCtt, k)
-			err := fileIns[k].Close()
-			util.ErrHandler(err)
-			delete(fileIns, k)
-			//case k := <- changCh:
-			//	currentState := lsCtt[k]
-			//	f := fileIns[k]
-			//	tail(f, currentState)
+			delInfo(k)
+		case aliveTime := <-timeoutDel:
+			for k, v := range fileIns {
+				if v != nil {
+					if time.Since(time.Unix(lsCtt[k][1], 0)) > time.Second*time.Duration(aliveTime) {
+						delInfo(k)
+					}
+				}
+			}
 		}
 	}
+}
+
+func delInfo(k string) {
+	delete(lsCtt, k)
+	err := fileIns[k].Close()
+	util.ErrHandler(err)
+	delete(fileIns, k)
 }
 
 func initState(paths []string) {

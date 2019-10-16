@@ -15,15 +15,6 @@ func closeFileHandle() {
 	ticker := time.NewTicker(time.Duration(aliveTime) * time.Second)
 	for {
 		<-ticker.C
-		for key, v := range tailIns {
-			if v != nil {
-				if time.Since(time.Unix(lsCtt[key][1], 0)) > time.Second*time.Duration(aliveTime) {
-					err := v.Stop()
-					util.ErrHandler(err)
-					// delete map data.
-					delCh <- key
-				}
-			}
-		}
+		timeoutDel <- aliveTime
 	}
 }
