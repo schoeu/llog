@@ -59,10 +59,10 @@ func PathExist(p string) (bool, error) {
 	return false, err
 }
 
-func IsInclude(text string, regs []string) bool {
+func IsInclude(text []byte, regs []string) bool {
 	for _, v := range regs {
 		r := regexp.MustCompile(v)
-		if r.MatchString(text) {
+		if r.Match(text) {
 			return true
 		}
 	}

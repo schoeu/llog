@@ -40,11 +40,11 @@ func StartAction(c *cli.Context) {
 	closeFileHandle()
 }
 
-func StartAction1(c *cli.Context) {
-	configFile := util.GetAbsPath(util.GetCwd(), c.Args().First())
-	err := util.InitCfg(configFile)
-	util.ErrHandler(err)
-	tailFile([]string{"/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/nm_apps3/nm_app_nmt.log"})
-	var s = make(chan string)
-	<-s
-}
+//func StartAction1(c *cli.Context) {
+//	configFile := util.GetAbsPath(util.GetCwd(), c.Args().First())
+//	err := util.InitCfg(configFile)
+//	util.ErrHandler(err)
+//	tailFile([]string{"/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/nm_apps3/nm_app_nmt.log"})
+//	var s = make(chan string)
+//	<-s
+//}

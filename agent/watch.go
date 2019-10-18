@@ -1,9 +1,12 @@
 package agent
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/schoeu/llog/util"
+	"io"
+	"time"
 )
 
 func watch(paths []string) {
@@ -11,11 +14,12 @@ func watch(paths []string) {
 	util.ErrHandler(err)
 	// TODO
 	//defer w.Close()
+	var push = lineFilter()
 
 	excludeFiles := util.GetConfig().ExcludeFiles
 	for _, v := range paths {
 		// log path store.
-		if len(excludeFiles) > 0 && util.IsInclude(v, excludeFiles) {
+		if len(excludeFiles) > 0 && util.IsInclude([]byte(v), excludeFiles) {
 			continue
 		}
 		fmt.Println("watch file: ", v)
@@ -31,12 +35,35 @@ func watch(paths []string) {
 				if ev.Op&fsnotify.Create == fsnotify.Create {
 					if ev.Name != "" {
 						initState([]string{ev.Name})
+						err = w.Add(ev.Name)
+						util.ErrHandler(err)
 					}
 				}
 				//change file content
 				if ev.Op&fsnotify.Write == fsnotify.Write {
-					if ev.Name != "" {
-						changCh <- ev.Name
+					key := ev.Name
+					if key != "" {
+						f := fileIns[key]
+						var count int
+						offset, err := f.Seek(0, io.SeekCurrent)
+						util.ErrHandler(err)
+						line := bufio.NewReader(f)
+						var content []byte
+						for {
+							content, _, err = line.ReadLine()
+							if err == io.EOF {
+								break
+							}
+							count += len(content)
+							push(&content)
+						}
+						if err == io.EOF {
+							//_, seekErr := f.Seek(offset, io.SeekStart)
+							lsCh <- logStatus{
+								key: {offset + int64(count+1), time.Now().Unix()},
+							}
+							continue
+						}
 					}
 				}
 				// remove log file
@@ -53,8 +80,9 @@ func watch(paths []string) {
 					}
 				}
 			case err := <-w.Errors:
-				util.ErrHandler(err)
-				return
+				if err != io.EOF {
+					util.ErrHandler(err)
+				}
 			}
 		}
 	}()

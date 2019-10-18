@@ -19,6 +19,7 @@ var timeoutDel = make(chan int)
 
 var changCh = make(chan string)
 var fileIns map[string]*os.File
+var lineCh = make(chan string)
 
 func updateState() {
 	for {

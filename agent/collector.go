@@ -1,15 +1,11 @@
 package agent
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
-	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/schoeu/gopsinfo"
@@ -28,7 +24,6 @@ func fileGlob(allLogs []string) {
 		// update file state.
 		initState(paths)
 		watch(paths)
-		tailFile(paths)
 	}
 }
 
@@ -44,37 +39,8 @@ func pathPreProcess(p string) string {
 	return p
 }
 
-func tailFile(p []string) {
-	seek := getSeekType()
-	for _, v := range p {
-		tail(v, seek)
-	}
-}
-
-func tell(f *os.File, r *bufio.Reader) (offset int64, err error) {
-	if f == nil {
-		return
-	}
-	offset, err = f.Seek(0, io.SeekCurrent)
-	if err != nil {
-		return
-	}
-
-	if r == nil {
-		return
-	}
-
-	offset -= int64(r.Buffered())
-	return
-}
-
-func tail(p string, seek int) {
+func lineFilter() func(*[]byte) {
 	conf := util.GetConfig()
-	defer func() {
-		if err := recover(); err != nil {
-			fmt.Println(err)
-		}
-	}()
 
 	st := time.Now()
 	var logContent bytes.Buffer
@@ -87,78 +53,37 @@ func tail(p string, seek int) {
 		apiServer = conf.ApiServer.Url
 	}
 
-	f, _ := getFileIns(p, seek)
-	r := bufio.NewReader(f)
-
-	go func() {
-		var offset int64
-		var err error
-		for {
-			offset, err = tell(f, r)
-			if err != nil {
-				return
-			}
-
-			line, err := readLine(r)
-			if err == nil {
-				if len(include) > 0 && !util.IsInclude(line, include) {
-					continue
-				}
-				if len(exclude) > 0 && util.IsInclude(line, exclude) {
-					continue
-				}
-
-				if confMaxByte != 0 && len(line) > confMaxByte {
-					line = line[:confMaxByte]
-				}
-
-				// 多行模式
-				if multiline != "" {
-					// 匹配开始头
-					if util.IsInclude(line, []string{multiline}) {
-						if logContent.Len() > 0 {
-							doPush(sysInfo, st, logContent.Bytes(), apiServer)
-							logContent = bytes.Buffer{}
-						}
-					}
-					// 匹配多行其他内容
-					if maxLines != 0 && logContent.Len() < maxLines {
-						logContent.WriteString(line)
-						continue
-					}
-				} else {
-					doPush(sysInfo, st, []byte(line), apiServer)
-				}
-			} else if err == io.EOF {
-				if line != "" {
-					// this has the potential to never return the last line if
-					// it's not followed by a newline; seems a fair trade here
-					_, err := f.Seek(offset, 0)
-					if err != nil {
-						return
-					}
-				}
-
-				select {
-				case _ = <-changCh:
-				}
-			} else {
-				// non-EOF error
-				fmt.Println("Error reading", p, err)
-				return
-			}
+	return func(l *[]byte) {
+		line := *l
+		if len(include) > 0 && !util.IsInclude(line, include) {
+			return
 		}
-	}()
-}
+		if len(exclude) > 0 && util.IsInclude(line, exclude) {
+			return
+		}
 
-func readLine(r *bufio.Reader) (string, error) {
-	line, err := r.ReadString('\n')
-	if err != nil {
-		return line, err
+		if confMaxByte != 0 && len(line) > confMaxByte {
+			line = line[:confMaxByte]
+		}
+
+		// 多行模式
+		if multiline != "" {
+			// 匹配开始头
+			if util.IsInclude(line, []string{multiline}) {
+				if logContent.Len() > 0 {
+					doPush(sysInfo, st, logContent.Bytes(), apiServer)
+					logContent = bytes.Buffer{}
+				}
+			}
+			// 匹配多行其他内容
+			if maxLines != 0 && logContent.Len() < maxLines {
+				logContent.Write(line)
+				return
+			}
+		} else {
+			doPush(sysInfo, st, line, apiServer)
+		}
 	}
-
-	line = strings.TrimRight(line, "\n")
-	return line, err
 }
 
 func doPush(sysInfo bool, st time.Time, text []byte, apiServer string) {
