@@ -3,10 +3,11 @@ package agent
 import (
 	"bufio"
 	"fmt"
-	"github.com/fsnotify/fsnotify"
-	"github.com/schoeu/llog/util"
 	"io"
 	"time"
+
+	"github.com/fsnotify/fsnotify"
+	"github.com/schoeu/llog/util"
 )
 
 func watch(paths []string) {

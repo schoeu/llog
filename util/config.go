@@ -10,6 +10,7 @@ import (
 var cfg *Config
 
 type Config struct {
+	Name         string
 	SysInfo      bool     `yaml:"sys_info"`
 	LogDir       []string `yaml:"log_path"`
 	Exclude      []string `yaml:"exclude_lines"`

@@ -68,8 +68,6 @@ func esInit() {
 	if esIndex != "" {
 		indexServer = client.Index().Index(esIndex)
 	}
-
-	//*IndexService
 }
 
 func esPush(data logStruct) {

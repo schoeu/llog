@@ -14,6 +14,8 @@ import (
 
 type logStruct map[string]string
 
+var apiServer, name string
+
 func fileGlob(allLogs []string) {
 	go updateState()
 
@@ -46,12 +48,16 @@ func lineFilter() func(*[]byte) {
 	var logContent bytes.Buffer
 
 	include, exclude, apiEnable, multiline := conf.Include, conf.Exclude, conf.ApiServer.Enable, conf.Multiline.Pattern
-	sysInfo, confMaxByte, maxLines := conf.SysInfo, conf.MaxBytes, conf.Multiline.MaxLines
+	sysInfo, confMaxByte, maxLines, appName := conf.SysInfo, conf.MaxBytes, conf.Multiline.MaxLines, conf.Name
 
-	var apiServer string
 	if apiEnable && conf.ApiServer.Url != "" {
 		apiServer = conf.ApiServer.Url
 	}
+
+	if appName == "" {
+		appName = util.AppName
+	}
+	name = appName
 
 	return func(l *[]byte) {
 		line := *l
@@ -71,7 +77,7 @@ func lineFilter() func(*[]byte) {
 			// 匹配开始头
 			if util.IsInclude(line, []string{multiline}) {
 				if logContent.Len() > 0 {
-					doPush(sysInfo, st, logContent.Bytes(), apiServer)
+					doPush(sysInfo, st, logContent.Bytes())
 					logContent = bytes.Buffer{}
 				}
 			}
@@ -81,12 +87,12 @@ func lineFilter() func(*[]byte) {
 				return
 			}
 		} else {
-			doPush(sysInfo, st, line, apiServer)
+			doPush(sysInfo, st, line)
 		}
 	}
 }
 
-func doPush(sysInfo bool, st time.Time, text []byte, apiServer string) {
+func doPush(sysInfo bool, st time.Time, text []byte) {
 	var rs = logStruct{
 		"@message": string(text),
 	}
@@ -119,7 +125,7 @@ func combineTags(rs logStruct) logStruct {
 	// 日志签名
 	rs["@version"] = util.Version
 	rs["@logId"] = util.UUID()
-	rs["@type"] = util.AppName
+	rs["@name"] = name
 	rs["@timestamps"] = strconv.FormatInt(time.Now().UnixNano()/1e6, 10)
 	return rs
 }
