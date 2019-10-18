@@ -37,6 +37,8 @@ func getClint() *http.Client {
 }
 
 func apiPush(data logStruct, server string) {
+	defer util.Recover()
+
 	d, err := json.Marshal(data)
 	if client == nil {
 		client = getClint()
@@ -71,6 +73,8 @@ func esInit() {
 }
 
 func esPush(data logStruct) {
+	defer util.Recover()
+
 	if indexServer != nil {
 		_, err := indexServer.BodyJson(data).
 			Do(context.Background())

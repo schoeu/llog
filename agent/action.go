@@ -1,19 +1,12 @@
 package agent
 
 import (
-	"fmt"
-
 	"github.com/schoeu/llog/util"
 	"github.com/urfave/cli"
 	"path/filepath"
 )
 
 func StartAction(c *cli.Context) {
-	defer func() {
-		if err := recover(); err != nil {
-			fmt.Println(err)
-		}
-	}()
 	configFile := util.GetAbsPath(util.GetCwd(), c.Args().First())
 	err := util.InitCfg(configFile)
 	conf := util.GetConfig()

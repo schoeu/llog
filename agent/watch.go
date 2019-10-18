@@ -29,6 +29,8 @@ func watch(paths []string) {
 	}
 
 	go func() {
+		defer util.Recover()
+
 		for {
 			select {
 			case ev := <-w.Events:

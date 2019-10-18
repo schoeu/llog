@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -67,4 +68,10 @@ func IsInclude(text []byte, regs []string) bool {
 		}
 	}
 	return false
+}
+
+func Recover() {
+	if err := recover(); err != nil {
+		fmt.Println(err)
+	}
 }

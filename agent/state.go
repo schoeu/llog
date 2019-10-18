@@ -22,6 +22,7 @@ var fileIns map[string]*os.File
 var lineCh = make(chan string)
 
 func updateState() {
+	// TODO: defer process panic
 	for {
 		select {
 		case file := <-fileCh:
