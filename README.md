@@ -3,9 +3,20 @@
 > Lightweight log agent.
 
 ## 说明
-超轻量级日志收集，过滤，上报工具。支持glob选取日志，收集日志上报至指定API或ES，后续支持kafka，redis。
-运行RSS只有8MB左右。
-一键安装，无依赖。
+1. 超轻量级日志收集，过滤，上报工具。支持glob选取日志，收集日志上报至指定API或ES，后续支持kafka，redis。
+2. 支持filebeat核心功能。
+3. 相同运行环境，监控相同日志，比filebeat占用内存少50%以上。
+
+测试机器：mac book pro 系统版本：10.14.5  配置：i9/1TB SSD/32G
+
+|程序|监控文件数|占用内存|线程数|
+|:--:|:--:|:--:|:--:|
+|llog|8|7.3MB|29|
+|filebeat|8|16.3|31|
+|llog|4|6.2MB|21|
+|filebeat|4|15.1|28|
+
+4. 一键安装，无依赖。
 
 ## 安装
 
@@ -34,20 +45,28 @@ mv lla_32bit lla
 # 输入配置:
 # 是否上报系统级别日志（cpu，内存，磁盘，网络）, 默认为false，不上报
 #sys_info: true
+
 # 存放各类日志文件的glob匹配路径
 #log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/*","/path/to/error/log/.log"]
+
 # 在输入中排除符合正则表达式列表的日志行
 #exclude_lines: ["test"]
+
 # 包含输入中符合正则表达式列表的日志行
 #include_lines: ["^\\w+"]
+
 # 忽略掉符合正则表达式列表的文件
 #exclude_files: ["\\d{4}.log"]
+
 # 默认为false, 从文件开始处重新发送所有内容。设置为true会从文件尾开始监控文件新增内容把新增的每一行文件进行发送
 #tail_files: false
+
 #检测是否有新增日志文件的频率，默认为10秒
 #scan_frequency: 10
+
 # 最后一次读取文件后，持续时间内没有再写入日志，将关闭文件句柄，默认是 5mecho
 #close_inactive: 300
+
 # 多行匹配
 #multiline:
   # 多行匹配点
@@ -59,9 +78,12 @@ mv lla_32bit lla
 # 把收集到的日志发送到指定API
 # 请求boby中带有JSON数据，以POST方法发送至指定接口
 #api_server:
+  # 是否启用
   #enable: false
   #url: "http://127.0.0.1:9200/nma"
+
 #elasticsearch:
+  # 是否启用
   #enable: false
   #host: ["http://127.0.0.1:9200/nma"]
   # 输出认证.
