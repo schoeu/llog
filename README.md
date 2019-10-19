@@ -49,6 +49,9 @@ mv lla_32bit lla
 # 是否上报系统级别日志（cpu，内存，磁盘，网络）, 默认为false，不上报
 #sys_info: true
 
+# 设置最大使用cpu数量, 默认无限制
+#max_procs: 8
+
 # 存放各类日志文件的glob匹配路径
 #log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/*","/path/to/error/log/.log"]
 
@@ -132,3 +135,4 @@ nohup ./lla ./lla_conf.yml >> lla_nohup.log 2>&1 &
 - [x] 可配置从日志文件起始或尾部进行日志监听
 - [x] 新增文件检测
 - [x] 自动关闭长期不活动文件句柄
+- [x] 可限制cpu最多使用核数

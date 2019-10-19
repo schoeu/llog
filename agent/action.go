@@ -1,9 +1,11 @@
 package agent
 
 import (
+	"path/filepath"
+	"runtime"
+
 	"github.com/schoeu/llog/util"
 	"github.com/urfave/cli"
-	"path/filepath"
 )
 
 func StartAction(c *cli.Context) {
@@ -12,20 +14,26 @@ func StartAction(c *cli.Context) {
 	conf := util.GetConfig()
 	util.ErrHandler(err)
 
-	logFiles := conf.LogDir
-
-	if len(logFiles) == 0 {
-		logFileDir := util.GetTempDir()
-		logFiles = append(logFiles, filepath.Join(logFileDir, util.LogDir, util.FilePattern))
+	if conf.MaxProcs != 0 {
+		runtime.GOMAXPROCS(conf.MaxProcs)
 	}
 
-	// collect log.
-	fileGlob(logFiles)
+	inputs := conf.Input
+
+	for _, v := range inputs {
+		logFiles := v.LogDir
+		if len(logFiles) == 0 {
+			logFileDir := util.GetTempDir()
+			logFiles = append(logFiles, filepath.Join(logFileDir, util.LogDir, util.FilePattern))
+		}
+		// collect log.
+		fileGlob(logFiles)
+	}
 
 	util.ErrHandler(err)
 
 	// init es
-	if conf.Elasticsearch.Enable && len(conf.Elasticsearch.Host) > 0 {
+	if conf.Output.Elasticsearch.Enable && len(conf.Output.Elasticsearch.Host) > 0 {
 		esInit()
 	}
 

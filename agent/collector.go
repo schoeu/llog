@@ -84,7 +84,6 @@ func lineFilter() func(*[]byte) {
 			// 匹配多行其他内容
 			if maxLines != 0 && logContent.Len() < maxLines {
 				logContent.Write(line)
-				return
 			}
 		} else {
 			doPush(sysInfo, st, line)

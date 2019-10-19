@@ -27,7 +27,7 @@ func watch(paths []string) {
 		err = w.Add(v)
 		util.ErrHandler(err)
 	}
-
+	fmt.Println(paths)
 	go func() {
 		defer util.Recover()
 
@@ -77,6 +77,7 @@ func watch(paths []string) {
 				}
 				// rename log file
 				if ev.Op&fsnotify.Rename == fsnotify.Rename {
+					fmt.Println("change->", ev.Name)
 					if ev.Name != "" {
 						delCh <- ev.Name
 						initState([]string{ev.Name})

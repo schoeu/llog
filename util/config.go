@@ -9,22 +9,23 @@ import (
 
 var cfg *Config
 
-type Config struct {
-	Name         string
-	SysInfo      bool     `yaml:"sys_info"`
-	LogDir       []string `yaml:"log_path"`
-	Exclude      []string `yaml:"exclude_lines"`
-	Include      []string `yaml:"include_lines"`
-	ExcludeFiles []string `yaml:"exclude_files"`
-	MaxBytes     int      `yaml:"max_bytes"`
-	//ApiServer     string   `yaml:"api_server"`
-	TailFiles     bool `yaml:"tail_files"`
-	ScanFrequency int  `yaml:"scan_frequency"`
-	CloseInactive int  `yaml:"close_inactive"`
+type singleConfig struct {
+	SysInfo       bool     `yaml:"sys_info"`
+	LogDir        []string `yaml:"log_path"`
+	Exclude       []string `yaml:"exclude_lines"`
+	Include       []string `yaml:"include_lines"`
+	ExcludeFiles  []string `yaml:"exclude_files"`
+	MaxBytes      int      `yaml:"max_bytes"`
+	TailFiles     bool     `yaml:"tail_files"`
+	ScanFrequency int      `yaml:"scan_frequency"`
+	CloseInactive int      `yaml:"close_inactive"`
 	Multiline     struct {
 		Pattern  string
 		MaxLines int `yaml:"max_lines"`
 	}
+}
+
+type outputConfig struct {
 	ApiServer struct {
 		Enable bool
 		Url    string
@@ -36,6 +37,13 @@ type Config struct {
 		Username string
 		Password string
 	}
+}
+
+type Config struct {
+	Name     string
+	MaxProcs int `yaml:"max_procs"`
+	Input    []singleConfig
+	Output   outputConfig
 }
 
 func InitCfg(p string) error {

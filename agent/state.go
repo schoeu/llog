@@ -16,13 +16,11 @@ var fileCh = make(chan map[string]*os.File)
 var lsCtt = logStatus{}
 var delCh = make(chan string)
 var timeoutDel = make(chan int)
-
-var changCh = make(chan string)
 var fileIns map[string]*os.File
-var lineCh = make(chan string)
 
 func updateState() {
-	// TODO: defer process panic
+	defer util.Recover()
+
 	for {
 		select {
 		case file := <-fileCh:
@@ -30,7 +28,9 @@ func updateState() {
 				if fileIns == nil {
 					fileIns = map[string]*os.File{}
 				}
-				fileIns[k] = v
+				if fileIns[k] == nil {
+					fileIns[k] = v
+				}
 			}
 		case fileState := <-lsCh:
 			for k, v := range fileState {
