@@ -1,8 +1,9 @@
 package util
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestUUID(t *testing.T) {
@@ -10,9 +11,11 @@ func TestUUID(t *testing.T) {
 }
 
 func TestIsInclude(t *testing.T) {
-	pattern := "/d"
-	assert.Equal(t, true, IsInclude([]byte("\\d{4}"), []string{pattern}))
-	assert.NotEqual(t, true, IsInclude([]byte("\\w"), []string{pattern}))
+	pattern := []string{"\\d{4}"}
+	text := []byte("1234")
+	anotherText := []byte("abcd")
+	assert.Equal(t, true, IsInclude(text, pattern))
+	assert.NotEqual(t, true, IsInclude(anotherText, pattern))
 }
 
 func TestGetTempDir(t *testing.T) {
@@ -37,7 +40,7 @@ func TestGetCwd(t *testing.T) {
 }
 
 func TestPathExist(t *testing.T) {
-	p := "./config.test.yml"
+	p := "../config.test.yml"
 	ok, err := PathExist(p)
 	assert.Empty(t, err)
 	assert.Equal(t, true, ok)
