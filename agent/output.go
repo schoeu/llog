@@ -58,15 +58,15 @@ func apiPush(data logStruct, server string) {
 
 // es push.
 func esInit() {
-	conf := util.GetConfig()
-	esConf := conf.Elasticsearch
+	output := util.GetConfig().Output
+	esConf := output.Elasticsearch
 	client, err := elastic.NewClient(
 		elastic.SetURL(esConf.Host...),
 		elastic.SetBasicAuth(esConf.Username, esConf.Password),
 		elastic.SetSniff(false),
 	)
 	util.ErrHandler(err)
-	esIndex = conf.Elasticsearch.Index
+	esIndex = esConf.Index
 	if esIndex != "" {
 		indexServer = client.Index().Index(esIndex)
 	}

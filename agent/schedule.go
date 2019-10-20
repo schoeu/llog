@@ -6,9 +6,8 @@ import (
 	"github.com/schoeu/llog/util"
 )
 
-func closeFileHandle() {
-	conf := util.GetConfig()
-	aliveTime := conf.CloseInactive
+func closeFileHandle(sc *util.SingleConfig) {
+	aliveTime := sc.CloseInactive
 	if aliveTime < 1 {
 		aliveTime = 300
 	}

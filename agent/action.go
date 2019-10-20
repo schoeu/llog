@@ -1,7 +1,6 @@
 package agent
 
 import (
-	"path/filepath"
 	"runtime"
 
 	"github.com/schoeu/llog/util"
@@ -20,14 +19,13 @@ func StartAction(c *cli.Context) {
 
 	inputs := conf.Input
 
+	go updateState()
+
 	for _, v := range inputs {
-		logFiles := v.LogDir
-		if len(logFiles) == 0 {
-			logFileDir := util.GetTempDir()
-			logFiles = append(logFiles, filepath.Join(logFileDir, util.LogDir, util.FilePattern))
-		}
 		// collect log.
-		fileGlob(logFiles)
+		fileGlob(&v)
+		// close file handle schedule.
+		go closeFileHandle(&v)
 	}
 
 	util.ErrHandler(err)
@@ -37,6 +35,6 @@ func StartAction(c *cli.Context) {
 		esInit()
 	}
 
-	// close file handle schedule.
-	closeFileHandle()
+	ch := make(chan int)
+	<-ch
 }

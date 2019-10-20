@@ -9,7 +9,7 @@ import (
 
 var cfg *Config
 
-type singleConfig struct {
+type SingleConfig struct {
 	SysInfo       bool     `yaml:"sys_info"`
 	LogDir        []string `yaml:"log_path"`
 	Exclude       []string `yaml:"exclude_lines"`
@@ -42,7 +42,7 @@ type outputConfig struct {
 type Config struct {
 	Name     string
 	MaxProcs int `yaml:"max_procs"`
-	Input    []singleConfig
+	Input    []SingleConfig
 	Output   outputConfig
 }
 
@@ -51,7 +51,7 @@ func InitCfg(p string) error {
 
 	data, err := ioutil.ReadFile(p)
 	cfg = &Config{}
-	err = yaml.Unmarshal(data, cfg)
+	err = yaml.Unmarshal(data, &cfg)
 	return err
 }
 

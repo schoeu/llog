@@ -16,16 +16,19 @@ type logStruct map[string]string
 
 var apiServer, name string
 
-func fileGlob(allLogs []string) {
-	go updateState()
-
+func fileGlob(sc *util.SingleConfig) {
+	allLogs := sc.LogDir
+	if len(allLogs) == 0 {
+		logFileDir := util.GetTempDir()
+		allLogs = append(allLogs, filepath.Join(logFileDir, util.LogDir, util.FilePattern))
+	}
 	for _, v := range allLogs {
 		v = pathPreProcess(v)
 		paths, err := filepath.Glob(v)
 		util.ErrHandler(err)
 		// update file state.
-		initState(paths)
-		watch(paths)
+		initState(paths, sc)
+		watch(paths, sc)
 	}
 }
 
@@ -41,17 +44,17 @@ func pathPreProcess(p string) string {
 	return p
 }
 
-func lineFilter() func(*[]byte) {
+func lineFilter(sc *util.SingleConfig) func(*[]byte) {
 	conf := util.GetConfig()
-
+	output := conf.Output
 	st := time.Now()
 	var logContent bytes.Buffer
 
-	include, exclude, apiEnable, multiline := conf.Include, conf.Exclude, conf.ApiServer.Enable, conf.Multiline.Pattern
-	sysInfo, confMaxByte, maxLines, appName := conf.SysInfo, conf.MaxBytes, conf.Multiline.MaxLines, conf.Name
+	include, exclude, apiEnable, multiline := sc.Include, sc.Exclude, output.ApiServer.Enable, sc.Multiline.Pattern
+	sysInfo, confMaxByte, maxLines, appName := sc.SysInfo, sc.MaxBytes, sc.Multiline.MaxLines, conf.Name
 
-	if apiEnable && conf.ApiServer.Url != "" {
-		apiServer = conf.ApiServer.Url
+	if apiEnable && output.ApiServer.Url != "" {
+		apiServer = output.ApiServer.Url
 	}
 
 	if appName == "" {

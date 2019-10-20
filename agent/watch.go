@@ -10,14 +10,14 @@ import (
 	"github.com/schoeu/llog/util"
 )
 
-func watch(paths []string) {
+func watch(paths []string, sc *util.SingleConfig) {
 	w, err := fsnotify.NewWatcher()
 	util.ErrHandler(err)
 	// TODO
 	//defer w.Close()
-	var push = lineFilter()
+	var push = lineFilter(sc)
 
-	excludeFiles := util.GetConfig().ExcludeFiles
+	excludeFiles := sc.ExcludeFiles
 	for _, v := range paths {
 		// log path store.
 		if len(excludeFiles) > 0 && util.IsInclude([]byte(v), excludeFiles) {
@@ -27,7 +27,6 @@ func watch(paths []string) {
 		err = w.Add(v)
 		util.ErrHandler(err)
 	}
-	fmt.Println(paths)
 	go func() {
 		defer util.Recover()
 
@@ -37,7 +36,7 @@ func watch(paths []string) {
 				// add new file
 				if ev.Op&fsnotify.Create == fsnotify.Create {
 					if ev.Name != "" {
-						initState([]string{ev.Name})
+						initState([]string{ev.Name}, sc)
 						err = w.Add(ev.Name)
 						util.ErrHandler(err)
 					}
@@ -77,10 +76,9 @@ func watch(paths []string) {
 				}
 				// rename log file
 				if ev.Op&fsnotify.Rename == fsnotify.Rename {
-					fmt.Println("change->", ev.Name)
 					if ev.Name != "" {
 						delCh <- ev.Name
-						initState([]string{ev.Name})
+						initState([]string{ev.Name}, sc)
 					}
 				}
 			case err := <-w.Errors:

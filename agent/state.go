@@ -57,8 +57,8 @@ func delInfo(k string) {
 	delete(fileIns, k)
 }
 
-func initState(paths []string) {
-	seekType := getSeekType()
+func initState(paths []string, sc *util.SingleConfig) {
+	seekType := getSeekType(sc)
 	for _, v := range paths {
 		f, offset := getFileIns(v, seekType)
 		fileCh <- map[string]*os.File{
@@ -81,10 +81,9 @@ func getFileIns(p string, seek int) (*os.File, int64) {
 	return nil, 0
 }
 
-func getSeekType() int {
-	conf := util.GetConfig()
+func getSeekType(sc *util.SingleConfig) int {
 	seekType := io.SeekStart
-	if conf.TailFiles {
+	if sc.TailFiles {
 		seekType = io.SeekEnd
 	}
 	return seekType
