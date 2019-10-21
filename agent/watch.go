@@ -44,6 +44,7 @@ func watch(paths []string, sc *util.SingleConfig) {
 				//change file content
 				if ev.Op&fsnotify.Write == fsnotify.Write {
 					key := ev.Name
+					fmt.Println("change ->", key)
 					if key != "" {
 						f := fileIns[key]
 						var count int

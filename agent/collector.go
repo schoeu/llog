@@ -3,6 +3,7 @@ package agent
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -61,26 +62,23 @@ func lineFilter(sc *util.SingleConfig) func(*[]byte) {
 		appName = util.AppName
 	}
 	name = appName
+	// flag 0: nil  1: start  2:end
+	var flag bool
 
 	return func(l *[]byte) {
 		line := *l
-		if len(include) > 0 && !util.IsInclude(line, include) {
-			return
-		}
-		if len(exclude) > 0 && util.IsInclude(line, exclude) {
-			return
-		}
-
-		if confMaxByte != 0 && len(line) > confMaxByte {
-			line = line[:confMaxByte]
-		}
 
 		// 多行模式
 		if multiline != "" {
 			// 匹配开始头
 			if util.IsInclude(line, []string{multiline}) {
+				flag = !flag
 				if logContent.Len() > 0 {
-					doPush(sysInfo, st, logContent.Bytes())
+					ok, rs := filter(include, exclude, line, confMaxByte)
+					if ok {
+						return
+					}
+					doPush(sysInfo, st, rs)
 					logContent = bytes.Buffer{}
 				}
 			}
@@ -89,14 +87,32 @@ func lineFilter(sc *util.SingleConfig) func(*[]byte) {
 				logContent.Write(line)
 			}
 		} else {
-			doPush(sysInfo, st, line)
+			ok, rs := filter(include, exclude, line, confMaxByte)
+			if ok {
+				return
+			}
+			doPush(sysInfo, st, rs)
 		}
 	}
 }
 
-func doPush(sysInfo bool, st time.Time, text []byte) {
+func filter(include, exclude []string, line []byte, max int) (bool, *[]byte) {
+	if len(include) > 0 && !util.IsInclude(line, include) {
+		return true, nil
+	}
+	if len(exclude) > 0 && util.IsInclude(line, exclude) {
+		return true, nil
+	}
+	if max != 0 && len(line) > max {
+		line = line[:max]
+	}
+	fmt.Println(string(line))
+	return false, &line
+}
+
+func doPush(sysInfo bool, st time.Time, text *[]byte) {
 	var rs = logStruct{
-		"@message": string(text),
+		"@message": string(*text),
 	}
 	if sysInfo {
 		var psInfo gopsinfo.PsInfo

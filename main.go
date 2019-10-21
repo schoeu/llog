@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/schoeu/llog/agent"
@@ -15,11 +14,7 @@ func main() {
 	app.Name = util.AppName
 	app.Usage = util.AppUsage
 
-	defer func() {
-		if err := recover(); err != nil {
-			fmt.Println(err)
-		}
-	}()
+	defer util.Recover()
 
 	app.Action = agent.StartAction
 	//app.Commands = []cli.Command{
