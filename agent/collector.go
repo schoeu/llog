@@ -2,14 +2,12 @@ package agent
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
 	"time"
 
-	"github.com/schoeu/gopsinfo"
 	"github.com/schoeu/llog/util"
 )
 
@@ -48,11 +46,11 @@ func pathPreProcess(p string) string {
 func lineFilter(sc *util.SingleConfig) func(*[]byte) {
 	conf := util.GetConfig()
 	output := conf.Output
-	st := time.Now()
+
 	var logContent bytes.Buffer
 
 	include, exclude, apiEnable, multiline := sc.Include, sc.Exclude, output.ApiServer.Enable, sc.Multiline.Pattern
-	sysInfo, confMaxByte, maxLines, appName := sc.SysInfo, sc.MaxBytes, sc.Multiline.MaxLines, conf.Name
+	confMaxByte, maxLines, appName := sc.MaxBytes, sc.Multiline.MaxLines, conf.Name
 
 	if apiEnable && output.ApiServer.Url != "" {
 		apiServer = output.ApiServer.Url
@@ -78,7 +76,7 @@ func lineFilter(sc *util.SingleConfig) func(*[]byte) {
 					if ok {
 						return
 					}
-					doPush(sysInfo, st, rs)
+					doPush(rs, false)
 					logContent = bytes.Buffer{}
 				}
 			}
@@ -91,7 +89,7 @@ func lineFilter(sc *util.SingleConfig) func(*[]byte) {
 			if ok {
 				return
 			}
-			doPush(sysInfo, st, rs)
+			doPush(rs, false)
 		}
 	}
 }
@@ -110,40 +108,25 @@ func filter(include, exclude []string, line []byte, max int) (bool, *[]byte) {
 	return false, &line
 }
 
-func doPush(sysInfo bool, st time.Time, text *[]byte) {
-	var rs = logStruct{
-		"@message": string(*text),
-	}
-	if sysInfo {
-		var psInfo gopsinfo.PsInfo
-		et := time.Now()
-		during := et.Sub(st)
-		timeSub := int(during)
-		if timeSub < 1 {
-			during = time.Microsecond * 1000
-		}
-		psInfo = gopsinfo.GetPsInfo(during)
-		st = et
-
-		sysData, err := json.Marshal(psInfo)
-		util.ErrHandler(err)
-		rs["@sysInfo"] = string(sysData)
-	}
-	combineData := combineTags(rs)
+func doPush(text *[]byte, isSys bool) {
+	cd := combineData(text, isSys)
 	if apiServer != "" {
-		go apiPush(combineData, apiServer)
+		go apiPush(cd, apiServer)
 	}
 
 	if indexServer != nil {
-		go esPush(combineData)
+		go esPush(cd)
 	}
 }
 
-func combineTags(rs logStruct) logStruct {
-	// 日志签名
-	rs["@version"] = util.Version
-	rs["@logId"] = util.UUID()
-	rs["@name"] = name
-	rs["@timestamps"] = strconv.FormatInt(time.Now().UnixNano()/1e6, 10)
-	return rs
+func combineData(text *[]byte, isSys bool) *logStruct {
+	var rs = logStruct{
+		"@message": string(*text),
+		// 日志签名
+		"@version":    util.Version,
+		"@logId":      util.UUID(),
+		"@timestamps": strconv.FormatInt(time.Now().UnixNano()/1e6, 10),
+		"@sysInfo":    strconv.FormatBool(isSys),
+	}
+	return &rs
 }

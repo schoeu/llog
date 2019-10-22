@@ -36,7 +36,7 @@ func getClint() *http.Client {
 	return client
 }
 
-func apiPush(data logStruct, server string) {
+func apiPush(data *logStruct, server string) {
 	defer util.Recover()
 
 	d, err := json.Marshal(data)
@@ -72,7 +72,7 @@ func esInit() {
 	}
 }
 
-func esPush(data logStruct) {
+func esPush(data *logStruct) {
 	defer util.Recover()
 
 	if indexServer != nil {

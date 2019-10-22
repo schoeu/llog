@@ -49,6 +49,9 @@ mv lla_32bit lla
 # 是否上报系统级别日志（cpu，内存，磁盘，网络）, 默认为false，不上报
 #sys_info: true
 
+# 系统信息上报时间间隔，默认为10秒
+#sys_info_during: 10
+
 # 设置最大使用cpu数量, 默认无限制
 #max_procs: 8
 

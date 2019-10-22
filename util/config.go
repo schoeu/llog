@@ -10,7 +10,6 @@ import (
 var cfg *Config
 
 type SingleConfig struct {
-	SysInfo       bool     `yaml:"sys_info"`
 	LogDir        []string `yaml:"log_path"`
 	Exclude       []string `yaml:"exclude_lines"`
 	Include       []string `yaml:"include_lines"`
@@ -40,10 +39,12 @@ type outputConfig struct {
 }
 
 type Config struct {
-	Name     string
-	MaxProcs int `yaml:"max_procs"`
-	Input    []SingleConfig
-	Output   outputConfig
+	Name          string
+	MaxProcs      int  `yaml:"max_procs"`
+	SysInfo       bool `yaml:"sys_info"`
+	SysInfoDuring int  `yaml:"sys_info_during"`
+	Input         []SingleConfig
+	Output        outputConfig
 }
 
 func InitCfg(p string) error {

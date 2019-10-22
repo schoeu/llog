@@ -1,8 +1,10 @@
 package agent
 
 import (
+	"encoding/json"
 	"time"
 
+	"github.com/schoeu/gopsinfo"
 	"github.com/schoeu/llog/util"
 )
 
@@ -15,5 +17,28 @@ func closeFileHandle(sc *util.SingleConfig) {
 	for {
 		<-ticker.C
 		timeoutDel <- aliveTime
+	}
+}
+
+func sysInfp() {
+	conf := util.GetConfig()
+	info := conf.SysInfo
+
+	if info {
+		during := conf.SysInfoDuring
+		var psInfo gopsinfo.PsInfo
+		var d time.Duration
+		if during < 1 {
+			d = 1
+		}
+		ticker := time.NewTicker(d * time.Second)
+		for {
+			<-ticker.C
+
+			psInfo = gopsinfo.GetPsInfo(d)
+			sysData, err := json.Marshal(psInfo)
+			util.ErrHandler(err)
+			doPush(&sysData, true)
+		}
 	}
 }
