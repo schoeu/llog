@@ -20,7 +20,7 @@ func closeFileHandle(sc *util.SingleConfig) {
 	}
 }
 
-func sysInfp() {
+func sysInfo() {
 	conf := util.GetConfig()
 	info := conf.SysInfo
 
@@ -30,15 +30,19 @@ func sysInfp() {
 		var d time.Duration
 		if during < 1 {
 			d = 1
+		} else if during == 0 {
+			d = 10
 		}
 		ticker := time.NewTicker(d * time.Second)
-		for {
-			<-ticker.C
+		go func() {
+			for {
+				<-ticker.C
 
-			psInfo = gopsinfo.GetPsInfo(d)
-			sysData, err := json.Marshal(psInfo)
-			util.ErrHandler(err)
-			doPush(&sysData, true)
-		}
+				psInfo = gopsinfo.GetPsInfo(d)
+				sysData, err := json.Marshal(psInfo)
+				util.ErrHandler(err)
+				doPush(&sysData, true)
+			}
+		}()
 	}
 }

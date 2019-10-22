@@ -31,9 +31,13 @@ func StartAction(c *cli.Context) {
 	util.ErrHandler(err)
 
 	// init es
-	if conf.Output.Elasticsearch.Enable && len(conf.Output.Elasticsearch.Host) > 0 {
+	es := conf.Output.Elasticsearch
+	if es.Enable && len(es.Host) > 0 {
 		esInit()
 	}
+
+	// system info process
+	sysInfo()
 
 	ch := make(chan int)
 	<-ch

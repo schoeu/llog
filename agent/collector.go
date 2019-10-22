@@ -109,24 +109,20 @@ func filter(include, exclude []string, line []byte, max int) (bool, *[]byte) {
 }
 
 func doPush(text *[]byte, isSys bool) {
-	cd := combineData(text, isSys)
-	if apiServer != "" {
-		go apiPush(cd, apiServer)
-	}
-
-	if indexServer != nil {
-		go esPush(cd)
-	}
-}
-
-func combineData(text *[]byte, isSys bool) *logStruct {
+	// 日志签名
 	var rs = logStruct{
-		"@message": string(*text),
-		// 日志签名
+		"@message":    string(*text),
 		"@version":    util.Version,
 		"@logId":      util.UUID(),
 		"@timestamps": strconv.FormatInt(time.Now().UnixNano()/1e6, 10),
 		"@sysInfo":    strconv.FormatBool(isSys),
 	}
-	return &rs
+
+	if apiServer != "" {
+		go apiPush(&rs, apiServer)
+	}
+
+	if indexServer != nil {
+		go esPush(&rs)
+	}
 }
