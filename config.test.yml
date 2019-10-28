@@ -1,6 +1,7 @@
 input:
 - log_path:
   - /var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/**/*.log
+  - '/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/**/*.logs'
   tail_files: true
   # 是否上报系统级别日志（cpu，内存，磁盘，网络）, 默认为false，不上报
   #sys_info: true
@@ -14,14 +15,16 @@ input:
   #exclude_files: ["\\d{4}.log"]
   # 多行匹配
   multiline:
-    # 多行匹配点
-    pattern: "^error_log"
-    # 最多匹配多少行，默认500
-    max_lines: 10
+      # 多行匹配点
+      pattern: "^error_log"
+      # 最多匹配多少行，默认10
+      #max_lines: 10
   #检测是否有新增日志文件的频率，默认为10秒
   #scan_frequency: 10
   # 最后一次读取文件后，持续时间内没有再写入日志，将关闭文件句柄，默认是 5m
   #close_inactive: 300
+- log_path:
+  - '/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/**/*.logs'
 output:
   elasticsearch:
   enable: true

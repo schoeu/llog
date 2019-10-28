@@ -41,7 +41,7 @@ func sysInfo() {
 				psInfo = gopsinfo.GetPsInfo(d)
 				sysData, err := json.Marshal(psInfo)
 				util.ErrHandler(err)
-				doPush(&sysData, true)
+				doPush(&sysData, systemType)
 			}
 		}()
 	}

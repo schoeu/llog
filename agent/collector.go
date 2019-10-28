@@ -15,12 +15,17 @@ type logStruct map[string]string
 
 var apiServer, name string
 
+const errorType = "error"
+const normalType = "normal"
+const systemType = "system"
+
 func fileGlob(sc *util.SingleConfig) {
 	allLogs := sc.LogDir
 	if len(allLogs) == 0 {
 		logFileDir := util.GetTempDir()
 		allLogs = append(allLogs, filepath.Join(logFileDir, util.LogDir, util.FilePattern))
 	}
+	// allLogs: - /var/logs/**/*.log
 	for _, v := range allLogs {
 		v = pathPreProcess(v)
 		paths, err := filepath.Glob(v)
@@ -28,6 +33,7 @@ func fileGlob(sc *util.SingleConfig) {
 		// update file state.
 		initState(paths, sc)
 		watch(paths, sc)
+		fmt.Printf("once~~~~~~~~~~~~")
 	}
 }
 
@@ -60,6 +66,10 @@ func lineFilter(sc *util.SingleConfig) func(*[]byte) {
 		appName = util.AppName
 	}
 	name = appName
+
+	if maxLines == 0 {
+		maxLines = 10
+	}
 	// flag 0: nil  1: start  2:end
 	var flag bool
 
@@ -76,12 +86,12 @@ func lineFilter(sc *util.SingleConfig) func(*[]byte) {
 					if ok {
 						return
 					}
-					doPush(rs, false)
+					doPush(rs, errorType)
 					logContent = bytes.Buffer{}
 				}
 			}
 			// 匹配多行其他内容
-			if maxLines != 0 && logContent.Len() < maxLines {
+			if logContent.Len() < maxLines {
 				logContent.Write(line)
 			}
 		} else {
@@ -89,7 +99,7 @@ func lineFilter(sc *util.SingleConfig) func(*[]byte) {
 			if ok {
 				return
 			}
-			doPush(rs, false)
+			doPush(rs, normalType)
 		}
 	}
 }
@@ -108,14 +118,15 @@ func filter(include, exclude []string, line []byte, max int) (bool, *[]byte) {
 	return false, &line
 }
 
-func doPush(text *[]byte, isSys bool) {
+func doPush(text *[]byte, types string) {
 	// 日志签名
 	var rs = logStruct{
 		"@message":    string(*text),
 		"@version":    util.Version,
 		"@logId":      util.UUID(),
 		"@timestamps": strconv.FormatInt(time.Now().UnixNano()/1e6, 10),
-		"@sysInfo":    strconv.FormatBool(isSys),
+		"@types":      types,
+		"@name":       name,
 	}
 
 	if apiServer != "" {

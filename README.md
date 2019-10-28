@@ -139,3 +139,5 @@ nohup ./lla ./lla_conf.yml >> lla_nohup.log 2>&1 &
 - [x] 新增文件检测
 - [x] 自动关闭长期不活动文件句柄
 - [x] 可限制cpu最多使用核数
+- [ ] 支持socket数据传输
+- [ ] 可设置日志上报线程数
