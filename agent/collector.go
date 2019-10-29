@@ -2,7 +2,6 @@ package agent
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -33,7 +32,6 @@ func fileGlob(sc *util.SingleConfig) {
 		// update file state.
 		initState(paths, sc)
 		watch(paths, sc)
-		fmt.Printf("once~~~~~~~~~~~~")
 	}
 }
 
@@ -70,9 +68,8 @@ func lineFilter(sc *util.SingleConfig) func(*[]byte) {
 	if maxLines == 0 {
 		maxLines = 10
 	}
-	// flag 0: nil  1: start  2:end
-	var flag bool
 
+	var lineCount int
 	return func(l *[]byte) {
 		line := *l
 
@@ -80,18 +77,19 @@ func lineFilter(sc *util.SingleConfig) func(*[]byte) {
 		if multiline != "" {
 			// 匹配开始头
 			if util.IsInclude(line, []string{multiline}) {
-				flag = !flag
 				if logContent.Len() > 0 {
-					ok, rs := filter(include, exclude, line, confMaxByte)
+					ok, rs := filter(include, exclude, logContent.Bytes(), confMaxByte)
 					if ok {
 						return
 					}
 					doPush(rs, errorType)
 					logContent = bytes.Buffer{}
+					lineCount = 0
 				}
 			}
+			lineCount++
 			// 匹配多行其他内容
-			if logContent.Len() < maxLines {
+			if lineCount < maxLines {
 				logContent.Write(line)
 			}
 		} else {
@@ -114,7 +112,6 @@ func filter(include, exclude []string, line []byte, max int) (bool, *[]byte) {
 	if max != 0 && len(line) > max {
 		line = line[:max]
 	}
-	fmt.Println(string(line))
 	return false, &line
 }
 
