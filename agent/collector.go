@@ -27,12 +27,15 @@ func fileGlob(sc *util.SingleConfig) {
 	// allLogs: - /var/logs/**/*.log
 	for _, v := range allLogs {
 		v = pathPreProcess(v)
+		// paths: ["/var/logs/1.log","/var/logs/2.log"]
 		paths, err := filepath.Glob(v)
 		util.ErrHandler(err)
 		// update file state.
 		initState(paths, sc)
-		watch(paths, sc)
+		addWatch(paths, sc)
 	}
+
+	go watch(sc)
 }
 
 func pathPreProcess(p string) string {
