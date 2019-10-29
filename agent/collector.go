@@ -2,6 +2,8 @@ package agent
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -18,12 +20,15 @@ const errorType = "error"
 const normalType = "normal"
 const systemType = "system"
 
+var syncMapError = errors.New("sync map error")
+
 func fileGlob(sc *util.SingleConfig) {
 	allLogs := sc.LogDir
 	if len(allLogs) == 0 {
 		logFileDir := util.GetTempDir()
 		allLogs = append(allLogs, filepath.Join(logFileDir, util.LogDir, util.FilePattern))
 	}
+
 	// allLogs: - /var/logs/**/*.log
 	for _, v := range allLogs {
 		v = pathPreProcess(v)
@@ -32,10 +37,7 @@ func fileGlob(sc *util.SingleConfig) {
 		util.ErrHandler(err)
 		// update file state.
 		initState(paths, sc)
-		addWatch(paths, sc)
 	}
-
-	go watch(sc)
 }
 
 func pathPreProcess(p string) string {
@@ -50,50 +52,54 @@ func pathPreProcess(p string) string {
 	return p
 }
 
-func lineFilter(sc *util.SingleConfig) func(*[]byte) {
-	conf := util.GetConfig()
-	output := conf.Output
+func lineFilter(k string) func(*[]byte) {
+	fi := getLogInfoIns(k)
+	sc := fi.sc
 
-	var logContent bytes.Buffer
-
-	include, exclude, apiEnable, multiline := sc.Include, sc.Exclude, output.ApiServer.Enable, sc.Multiline.Pattern
-	confMaxByte, maxLines, appName := sc.MaxBytes, sc.Multiline.MaxLines, conf.Name
-
-	if apiEnable && output.ApiServer.Url != "" {
-		apiServer = output.ApiServer.Url
-	}
-
-	if appName == "" {
-		appName = util.AppName
-	}
-	name = appName
+	include, exclude, multiline := sc.Include, sc.Exclude, sc.Multiline.Pattern
+	confMaxByte, maxLines := sc.MaxBytes, sc.Multiline.MaxLines
 
 	if maxLines == 0 {
 		maxLines = 10
 	}
 
-	var lineCount int
 	return func(l *[]byte) {
 		line := *l
-
-		// 多行模式
+		// multiple mode
 		if multiline != "" {
-			// 匹配开始头
+			buf := fi.data
+			// multiple head line
 			if util.IsInclude(line, []string{multiline}) {
-				if logContent.Len() > 0 {
-					ok, rs := filter(include, exclude, logContent.Bytes(), confMaxByte)
+				if buf.Len() > 0 {
+					fmt.Println(buf.String())
+					ok, rs := filter(include, exclude, buf.Bytes(), confMaxByte)
 					if ok {
 						return
 					}
+					fmt.Println(k, "-->", buf.String())
 					doPush(rs, errorType)
-					logContent = bytes.Buffer{}
-					lineCount = 0
+
+					sm.Set(k, logInfo{
+						data:    bytes.Buffer{},
+						sc:      fi.sc,
+						status:  fi.status,
+						fileIns: fi.fileIns,
+					})
+					fi.lineCount = 0
 				}
 			}
-			lineCount++
+			fi.lineCount++
 			// 匹配多行其他内容
-			if lineCount < maxLines {
-				logContent.Write(line)
+			if fi.lineCount < maxLines {
+				//logContent.Write(line)
+				buf.Write(line)
+				sm.Set(k, logInfo{
+					data:    buf,
+					sc:      fi.sc,
+					status:  fi.status,
+					fileIns: fi.fileIns,
+					//lineCount: fi.lineCount,
+				})
 			}
 		} else {
 			ok, rs := filter(include, exclude, line, confMaxByte)
@@ -136,4 +142,13 @@ func doPush(text *[]byte, types string) {
 	if indexServer != nil {
 		go esPush(&rs)
 	}
+}
+
+func getLogInfoIns(p string) *logInfo {
+	logContent, ok := sm.Get(p)
+	if !ok {
+		util.ErrHandler(syncMapError)
+	}
+	li, ok := logContent.(logInfo)
+	return &li
 }

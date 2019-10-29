@@ -16,7 +16,17 @@ func closeFileHandle(sc *util.SingleConfig) {
 	ticker := time.NewTicker(time.Duration(aliveTime) * time.Second)
 	for {
 		<-ticker.C
-		timeoutDel <- aliveTime
+		for _, v := range sm.Keys() {
+			ins, ok := sm.Get(v)
+			if !ok {
+				util.ErrHandler(syncMapError)
+				return
+			}
+			li := ins.(logInfo)
+			if time.Since(time.Unix(li.status[1], 0)) > time.Second*time.Duration(aliveTime) {
+				delInfo(v)
+			}
+		}
 	}
 }
 

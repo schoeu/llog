@@ -16,7 +16,7 @@ input:
   # 多行匹配
   multiline:
       # 多行匹配点
-      pattern: "^error_log"
+      pattern: "error_log"
       # 最多匹配多少行，默认10
       #max_lines: 10
   #检测是否有新增日志文件的频率，默认为10秒

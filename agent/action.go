@@ -19,7 +19,7 @@ func StartAction(c *cli.Context) {
 
 	inputs := conf.Input
 
-	go updateState()
+	//go updateState()
 
 	for _, v := range inputs {
 		// collect log.
@@ -27,8 +27,22 @@ func StartAction(c *cli.Context) {
 		// close file handle schedule.
 		go closeFileHandle(&v)
 	}
+	addWatch()
+	watch()
 
-	util.ErrHandler(err)
+	// set app name
+	appName := conf.Name
+	if appName == "" {
+		appName = util.AppName
+	}
+	name = appName
+
+	// set api server info
+	output := conf.Output
+	apiEnable := output.ApiServer.Enable
+	if apiEnable && output.ApiServer.Url != "" {
+		apiServer = output.ApiServer.Url
+	}
 
 	// init es
 	es := conf.Output.Elasticsearch
