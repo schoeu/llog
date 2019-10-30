@@ -74,11 +74,11 @@ func esInit() {
 
 func esPush(data *logStruct) {
 	defer util.Recover()
-
 	if indexServer != nil {
 		_, err := indexServer.BodyJson(data).
 			Do(context.Background())
 		// if err is not nil: es connect closed
 		util.ErrHandler(err)
+
 	}
 }

@@ -2,6 +2,7 @@ package agent
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/schoeu/gopsinfo"
@@ -22,8 +23,10 @@ func closeFileHandle(sc *util.SingleConfig) {
 	for {
 		<-ticker.C
 		for _, v := range sm.Keys() {
-			li := getLogInfoIns(v)
-			if li.sc == sc && time.Since(time.Unix(li.status[1], 0)) > time.Second*time.Duration(aliveTime) {
+			li, err := getLogInfoIns(v)
+			util.ErrHandler(err)
+			if li != nil && li.sc == sc && time.Since(time.Unix(li.status[1], 0)) > time.Second*time.Duration(aliveTime) {
+				fmt.Println("stop watch: ", v)
 				delInfo(v)
 			}
 		}
@@ -59,6 +62,7 @@ func sysInfo() {
 		}
 		ticker := time.NewTicker(d * time.Second)
 		go func() {
+			defer util.Recover()
 			for {
 				<-ticker.C
 
@@ -69,4 +73,19 @@ func sysInfo() {
 			}
 		}()
 	}
+}
+
+func debugInfo() {
+	ticker := time.NewTicker(5 * time.Second)
+	go func() {
+		defer util.Recover()
+		for {
+			<-ticker.C
+			fmt.Println("\n\n\nsm count: ", sm.Count())
+			for k, v := range sm.Items() {
+				val := v.(logInfo)
+				fmt.Println(k, "--->", val)
+			}
+		}
+	}()
 }

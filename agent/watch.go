@@ -30,22 +30,25 @@ func addWatch() {
 
 	//TODO: defer fsWatcher.Close()
 	for _, v := range sm.Keys() {
-		li := getLogInfoIns(v)
-		excludeFiles := li.sc.ExcludeFiles
-		// log path store.
-		if len(excludeFiles) > 0 && util.IsInclude([]byte(v), excludeFiles) {
-			continue
-		}
-		fmt.Println("watch file: ", v)
-		err = fsWatcher.Add(v)
+		li, err := getLogInfoIns(v)
 		util.ErrHandler(err)
+		if li != nil {
+			excludeFiles := li.sc.ExcludeFiles
+			// log path store.
+			if len(excludeFiles) > 0 && util.IsInclude([]byte(v), excludeFiles) {
+				continue
+			}
+			err := fsWatcher.Add(v)
+			util.ErrHandler(err)
+			fmt.Println("watch file: ", v)
+		}
 	}
 }
 
 func watch() {
-	defer util.Recover()
-
 	go func() {
+		defer util.Recover()
+
 		for {
 			select {
 			case ev := <-fsWatcher.Events:
@@ -59,38 +62,44 @@ func watch() {
 				if ev.Op&fsnotify.Write == fsnotify.Write {
 					key := ev.Name
 					if key != "" {
-						var push = lineFilter(key)
-						fi := getLogInfoIns(key)
-
-						f := fi.fileIns
-						var count int
-						offset, err := f.Seek(0, io.SeekCurrent)
+						fi, err := getLogInfoIns(key)
 						util.ErrHandler(err)
-						line := bufio.NewReader(f)
-						var content []byte
-						for {
-							content, _, err = line.ReadLine()
-							if err == io.EOF {
-								break
+
+						if fi != nil {
+							var push = lineFilter(key)
+							f := fi.fileIns
+							var count int
+							offset, err := f.Seek(0, io.SeekCurrent)
+							util.ErrHandler(err)
+							line := bufio.NewReader(f)
+							var content []byte
+							for {
+								content, _, err = line.ReadLine()
+								if err == io.EOF {
+									break
+								}
+								count += len(content)
+								if push != nil {
+									push(&content)
+								}
 							}
-							count += len(content)
-							push(&content)
-						}
-						if err == io.EOF {
-							//_, seekErr := f.Seek(offset, io.SeekStart)
-							//lsCh <- logStatus{
-							//	key: {offset + int64(count+1), time.Now().Unix()},
-							//}
-							fi.status = [2]int64{offset + int64(count+1), time.Now().Unix()}
-							continue
+							if err == io.EOF {
+								_, seekErr := f.Seek(offset, io.SeekStart)
+								util.ErrHandler(seekErr)
+								sm.Set(key, logInfo{
+									sc:      fi.sc,
+									status:  [2]int64{offset + int64(count+1), time.Now().Unix()},
+									fileIns: f,
+								})
+								continue
+							}
 						}
 					}
 				}
 				// remove log file
 				if ev.Op&fsnotify.Remove == fsnotify.Remove {
 					if ev.Name != "" {
-						//delCh <- ev.Name
-						//delInfo(ev.Name)
+						delInfo(ev.Name)
 					}
 				}
 				// rename log file

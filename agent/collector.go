@@ -3,6 +3,7 @@ package agent
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -58,46 +59,50 @@ var buf = bytes.Buffer{}
 var count = 0
 
 func lineFilter(k string) func(*[]byte) {
-	fi := getLogInfoIns(k)
-	sc := fi.sc
+	fi, err := getLogInfoIns(k)
+	util.ErrHandler(err)
+	if fi != nil {
+		sc := fi.sc
 
-	include, exclude, multiline := sc.Include, sc.Exclude, sc.Multiline.Pattern
-	confMaxByte, maxLines := sc.MaxBytes, sc.Multiline.MaxLines
+		include, exclude, multiline := sc.Include, sc.Exclude, sc.Multiline.Pattern
+		confMaxByte, maxLines := sc.MaxBytes, sc.Multiline.MaxLines
 
-	if maxLines == 0 {
-		maxLines = maxLinesDefault
-	}
+		if maxLines == 0 {
+			maxLines = maxLinesDefault
+		}
 
-	return func(l *[]byte) {
-		line := *l
-		// multiple mode
-		if multiline != "" {
-			// multiple head line
-			if util.IsInclude(line, []string{multiline}) {
-				if buf.Len() > 0 {
-					ok, rs := filter(include, exclude, buf.Bytes(), confMaxByte)
-					if ok {
-						return
+		return func(l *[]byte) {
+			line := *l
+			// multiple mode
+			if multiline != "" {
+				// multiple head line
+				if util.IsInclude(line, []string{multiline}) {
+					if buf.Len() > 0 {
+						ok, rs := filter(include, exclude, buf.Bytes(), confMaxByte)
+						if ok {
+							return
+						}
+						doPush(rs, errorType)
+						count = 0
+						buf = bytes.Buffer{}
 					}
-					doPush(rs, errorType)
-					count = 0
-					buf = bytes.Buffer{}
 				}
+				count++
+				// 匹配多行其他内容
+				if count < maxLines {
+					//logContent.Write(line)
+					buf.Write(line)
+				}
+			} else {
+				ok, rs := filter(include, exclude, line, confMaxByte)
+				if ok {
+					return
+				}
+				doPush(rs, normalType)
 			}
-			count++
-			// 匹配多行其他内容
-			if count < maxLines {
-				//logContent.Write(line)
-				buf.Write(line)
-			}
-		} else {
-			ok, rs := filter(include, exclude, line, confMaxByte)
-			if ok {
-				return
-			}
-			doPush(rs, normalType)
 		}
 	}
+	return nil
 }
 
 func filter(include, exclude []string, line []byte, max int) (bool, *[]byte) {
@@ -123,21 +128,19 @@ func doPush(text *[]byte, types string) {
 		"@types":      types,
 		"@name":       name,
 	}
-
 	if apiServer != "" {
 		go apiPush(&rs, apiServer)
 	}
-
 	if indexServer != nil {
 		go esPush(&rs)
 	}
 }
 
-func getLogInfoIns(p string) *logInfo {
+func getLogInfoIns(p string) (*logInfo, error) {
 	logContent, ok := sm.Get(p)
-	li, ok := logContent.(logInfo)
 	if !ok {
-		util.ErrHandler(syncMapError)
+		return nil, errors.New(fmt.Sprintf("file: %s is not exist in sync map", p))
 	}
-	return &li
+	li := logContent.(logInfo)
+	return &li, nil
 }

@@ -1,7 +1,7 @@
 input:
 - log_path:
   - /var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/**/*.log
-  - '/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/**/*.logs'
+#  - '/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/**/*.logs'
   tail_files: true
   # 存放各类日志文件的glob匹配路径
   #exclude_lines: ["test"]
@@ -10,9 +10,9 @@ input:
   # 忽略掉符合正则表达式列表的文件
   #exclude_files: ["\\d{4}.log"]
   # 多行匹配
-  multiline:
+#  multiline:
     # 多行匹配点
-    pattern: "error_log"
+#    pattern: "error_log"
     # 最多匹配多少行，默认10
     #max_lines: 10
   #检测是否有新增日志文件的频率，默认为10秒
@@ -28,9 +28,9 @@ input:
 #sys_info: true
 output:
   elasticsearch:
-  enable: true
-  host: ["http://127.0.0.1:9200/"]
-  index: "nma"
+    enable: true
+    host: ["http://127.0.0.1:9200/"]
+    index: "nma"
   # 输出认证.
   #username: "admin"
   #password: "s3cr3t"

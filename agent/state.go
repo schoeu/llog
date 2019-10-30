@@ -9,8 +9,9 @@ import (
 )
 
 func delInfo(k string) {
-	li := getLogInfoIns(k)
-	if li.fileIns != nil {
+	li, err := getLogInfoIns(k)
+	util.ErrHandler(err)
+	if li != nil && li.fileIns != nil {
 		err := li.fileIns.Close()
 		util.ErrHandler(err)
 	}

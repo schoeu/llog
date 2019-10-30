@@ -57,6 +57,8 @@ func StartAction(c *cli.Context) {
 
 	addWatch()
 	watch()
+	// debug
+	//debugInfo()
 
 	ch := make(chan int)
 	<-ch
