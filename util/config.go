@@ -1,9 +1,7 @@
 package util
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 
 	"gopkg.in/yaml.v2"
@@ -61,8 +59,6 @@ func InitCfg(p string) error {
 
 func GetConfig() *Config {
 	if cfg != nil {
-		d, _ := json.Marshal(cfg)
-		fmt.Println("config--->", string(d))
 		return cfg
 	}
 	ErrHandler(errors.New("config not init"))

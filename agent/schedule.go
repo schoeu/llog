@@ -9,6 +9,7 @@ import (
 )
 
 const aliveTimeDefault = 300
+const freqDefault = 600
 
 func closeFileHandle(sc *util.SingleConfig) {
 	defer util.Recover()
@@ -26,6 +27,20 @@ func closeFileHandle(sc *util.SingleConfig) {
 				delInfo(v)
 			}
 		}
+	}
+}
+
+func reScanTask(sc *util.SingleConfig) {
+	defer util.Recover()
+
+	freq := sc.ScanFrequency
+	if freq < 1 {
+		freq = freqDefault
+	}
+	ticker := time.NewTicker(time.Duration(freq) * time.Second)
+	for {
+		<-ticker.C
+		reScan()
 	}
 }
 

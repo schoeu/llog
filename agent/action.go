@@ -24,10 +24,12 @@ func StartAction(c *cli.Context) {
 
 	//go updateState()
 	for _, v := range inputs {
-		// collect log.
+		// collect log
 		fileGlob(&v)
-		// close file handle schedule.
+		// close file handle schedule
 		go closeFileHandle(&v)
+		// watch new log file schedule
+		go reScanTask(&v)
 	}
 
 	// set app name
@@ -58,4 +60,12 @@ func StartAction(c *cli.Context) {
 
 	ch := make(chan int)
 	<-ch
+}
+
+func reScan() {
+	inputs := util.GetConfig().Input
+	for _, v := range inputs {
+		// collect log.
+		fileGlob(&v)
+	}
 }

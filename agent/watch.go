@@ -52,9 +52,7 @@ func watch() {
 				// add new file
 				if ev.Op&fsnotify.Create == fsnotify.Create {
 					if ev.Name != "" {
-						//initState([]string{ev.Name}, sc)
-						//err := fsWatcher.Add(ev.Name)
-						//util.ErrHandler(err)
+						reScan()
 					}
 				}
 				//change file content
