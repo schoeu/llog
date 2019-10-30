@@ -2,7 +2,6 @@ package agent
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -10,20 +9,16 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
-	cmap "github.com/orcaman/concurrent-map"
 	"github.com/schoeu/llog/util"
 )
 
 var once sync.Once
-var sm = cmap.New()
 var fsWatcher *fsnotify.Watcher
 
 type logInfo struct {
-	data    bytes.Buffer
 	sc      *util.SingleConfig
 	status  [2]int64
 	fileIns *os.File
-	lineCount int
 }
 
 func addWatch() {
@@ -49,6 +44,7 @@ func addWatch() {
 
 func watch() {
 	defer util.Recover()
+
 	go func() {
 		for {
 			select {
@@ -67,6 +63,7 @@ func watch() {
 					if key != "" {
 						var push = lineFilter(key)
 						fi := getLogInfoIns(key)
+
 						f := fi.fileIns
 						var count int
 						offset, err := f.Seek(0, io.SeekCurrent)
@@ -95,7 +92,7 @@ func watch() {
 				if ev.Op&fsnotify.Remove == fsnotify.Remove {
 					if ev.Name != "" {
 						//delCh <- ev.Name
-						delInfo(ev.Name)
+						//delInfo(ev.Name)
 					}
 				}
 				// rename log file

@@ -1,7 +1,9 @@
 package util
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 
 	"gopkg.in/yaml.v2"
@@ -11,7 +13,7 @@ var cfg *Config
 
 type SingleConfig struct {
 	LogDir        []string `yaml:"log_path"`
-	Types string
+	Types         string
 	Exclude       []string `yaml:"exclude_lines"`
 	Include       []string `yaml:"include_lines"`
 	ExcludeFiles  []string `yaml:"exclude_files"`
@@ -59,6 +61,8 @@ func InitCfg(p string) error {
 
 func GetConfig() *Config {
 	if cfg != nil {
+		d, _ := json.Marshal(cfg)
+		fmt.Println("config--->", string(d))
 		return cfg
 	}
 	ErrHandler(errors.New("config not init"))

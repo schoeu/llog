@@ -3,7 +3,6 @@ package agent
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -15,6 +14,7 @@ import (
 type logStruct map[string]string
 
 var apiServer, name string
+var maxLinesDefault = 10
 
 const errorType = "error"
 const normalType = "normal"
@@ -33,10 +33,12 @@ func fileGlob(sc *util.SingleConfig) {
 	for _, v := range allLogs {
 		v = pathPreProcess(v)
 		// paths: ["/var/logs/1.log","/var/logs/2.log"]
-		paths, err := filepath.Glob(v)
+		p, err := filepath.Glob(v)
 		util.ErrHandler(err)
+		if len(p) > 0 {
+			initState(p, sc)
+		}
 		// update file state.
-		initState(paths, sc)
 	}
 }
 
@@ -52,6 +54,9 @@ func pathPreProcess(p string) string {
 	return p
 }
 
+var buf = bytes.Buffer{}
+var count = 0
+
 func lineFilter(k string) func(*[]byte) {
 	fi := getLogInfoIns(k)
 	sc := fi.sc
@@ -60,46 +65,30 @@ func lineFilter(k string) func(*[]byte) {
 	confMaxByte, maxLines := sc.MaxBytes, sc.Multiline.MaxLines
 
 	if maxLines == 0 {
-		maxLines = 10
+		maxLines = maxLinesDefault
 	}
 
 	return func(l *[]byte) {
 		line := *l
 		// multiple mode
 		if multiline != "" {
-			buf := fi.data
 			// multiple head line
 			if util.IsInclude(line, []string{multiline}) {
 				if buf.Len() > 0 {
-					fmt.Println(buf.String())
 					ok, rs := filter(include, exclude, buf.Bytes(), confMaxByte)
 					if ok {
 						return
 					}
-					fmt.Println(k, "-->", buf.String())
 					doPush(rs, errorType)
-
-					sm.Set(k, logInfo{
-						data:    bytes.Buffer{},
-						sc:      fi.sc,
-						status:  fi.status,
-						fileIns: fi.fileIns,
-					})
-					fi.lineCount = 0
+					count = 0
+					buf = bytes.Buffer{}
 				}
 			}
-			fi.lineCount++
+			count++
 			// 匹配多行其他内容
-			if fi.lineCount < maxLines {
+			if count < maxLines {
 				//logContent.Write(line)
 				buf.Write(line)
-				sm.Set(k, logInfo{
-					data:    buf,
-					sc:      fi.sc,
-					status:  fi.status,
-					fileIns: fi.fileIns,
-					//lineCount: fi.lineCount,
-				})
 			}
 		} else {
 			ok, rs := filter(include, exclude, line, confMaxByte)
@@ -146,9 +135,9 @@ func doPush(text *[]byte, types string) {
 
 func getLogInfoIns(p string) *logInfo {
 	logContent, ok := sm.Get(p)
+	li, ok := logContent.(logInfo)
 	if !ok {
 		util.ErrHandler(syncMapError)
 	}
-	li, ok := logContent.(logInfo)
 	return &li
 }

@@ -8,22 +8,21 @@ import (
 	"github.com/schoeu/llog/util"
 )
 
+const aliveTimeDefault = 300
+
 func closeFileHandle(sc *util.SingleConfig) {
+	defer util.Recover()
+
 	aliveTime := sc.CloseInactive
 	if aliveTime < 1 {
-		aliveTime = 300
+		aliveTime = aliveTimeDefault
 	}
 	ticker := time.NewTicker(time.Duration(aliveTime) * time.Second)
 	for {
 		<-ticker.C
 		for _, v := range sm.Keys() {
-			ins, ok := sm.Get(v)
-			if !ok {
-				util.ErrHandler(syncMapError)
-				return
-			}
-			li := ins.(logInfo)
-			if time.Since(time.Unix(li.status[1], 0)) > time.Second*time.Duration(aliveTime) {
+			li := getLogInfoIns(v)
+			if li.sc == sc && time.Since(time.Unix(li.status[1], 0)) > time.Second*time.Duration(aliveTime) {
 				delInfo(v)
 			}
 		}

@@ -3,9 +3,12 @@ package agent
 import (
 	"runtime"
 
+	cmap "github.com/orcaman/concurrent-map"
 	"github.com/schoeu/llog/util"
 	"github.com/urfave/cli"
 )
+
+var sm = cmap.New()
 
 func StartAction(c *cli.Context) {
 	configFile := util.GetAbsPath(util.GetCwd(), c.Args().First())
@@ -20,15 +23,12 @@ func StartAction(c *cli.Context) {
 	inputs := conf.Input
 
 	//go updateState()
-
 	for _, v := range inputs {
 		// collect log.
 		fileGlob(&v)
 		// close file handle schedule.
 		go closeFileHandle(&v)
 	}
-	addWatch()
-	watch()
 
 	// set app name
 	appName := conf.Name
@@ -52,6 +52,9 @@ func StartAction(c *cli.Context) {
 
 	// system info process
 	sysInfo()
+
+	addWatch()
+	watch()
 
 	ch := make(chan int)
 	<-ch

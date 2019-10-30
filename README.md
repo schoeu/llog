@@ -141,3 +141,4 @@ nohup ./lla ./lla_conf.yml >> lla_nohup.log 2>&1 &
 - [x] 可限制cpu最多使用核数
 - [ ] 支持socket数据传输
 - [ ] 可设置日志上报线程数
+- [ ] 支持多套独立配置方案
