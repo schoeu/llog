@@ -84,8 +84,8 @@ func watch() {
 								}
 							}
 							if err == io.EOF {
-								_, seekErr := f.Seek(offset, io.SeekStart)
-								util.ErrHandler(seekErr)
+								//_, seekErr := f.Seek(offset, io.SeekStart)
+								//util.ErrHandler(seekErr)
 								sm.Set(key, logInfo{
 									sc:      fi.sc,
 									status:  [2]int64{offset + int64(count+1), time.Now().Unix()},

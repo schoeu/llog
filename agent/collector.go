@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+
 	"os"
 	"path/filepath"
 	"strconv"
 	"time"
 
+	jsoniter "github.com/json-iterator/go"
 	"github.com/schoeu/llog/util"
 )
 
@@ -16,12 +18,11 @@ type logStruct map[string]string
 
 var apiServer, name string
 var maxLinesDefault = 10
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 const errorType = "error"
 const normalType = "normal"
 const systemType = "system"
-
-var syncMapError = errors.New("sync map error")
 
 func fileGlob(sc *util.SingleConfig) {
 	allLogs := sc.LogDir
@@ -128,8 +129,9 @@ func doPush(text *[]byte, types string) {
 		"@types":      types,
 		"@name":       name,
 	}
+
 	if apiServer != "" {
-		go apiPush(&rs, apiServer)
+		go apiPush(&rs)
 	}
 	if indexServer != nil {
 		go esPush(&rs)

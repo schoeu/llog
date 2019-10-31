@@ -3,7 +3,6 @@ package agent
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"net"
 	"net/http"
 	"time"
@@ -36,7 +35,7 @@ func getClint() *http.Client {
 	return client
 }
 
-func apiPush(data *logStruct, server string) {
+func apiPush(data *logStruct) {
 	defer util.Recover()
 
 	d, err := json.Marshal(data)
@@ -44,7 +43,7 @@ func apiPush(data *logStruct, server string) {
 		client = getClint()
 	}
 
-	request, err := http.NewRequest("POST", server, bytes.NewBuffer(d))
+	request, err := http.NewRequest("POST", apiServer, bytes.NewBuffer(d))
 	request.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		panic(err)
