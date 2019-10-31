@@ -26,7 +26,7 @@
 ### 指定配置
 
 #### 1. 下载对应版本LLA
-```
+``` shell script
 # 下载linux 64 bit
 wget http://qiniucdn.schoeu.com/lla_64bit
 
@@ -34,7 +34,7 @@ wget http://qiniucdn.schoeu.com/lla_64bit
 mv lla_64bit lla
 ```
 或
-```
+``` shell script
 # 下载linux 32 bit
 wget http://qiniucdn.schoeu.com/lla_32bit
 
@@ -44,7 +44,7 @@ mv lla_32bit lla
 
 #### 2. 创建配置文件，新建lla_conf.yml文件，内容如下
 
-```
+``` yaml
 # 日志收集配置块
 input:
 
@@ -110,7 +110,7 @@ output:
 ```
 
 #### 3. 后台启动lla agent
-```
+``` shell script
 # 默认配置启动
 nohup ./lla >> lla_nohup.log 2>&1 &
 
@@ -119,7 +119,7 @@ nohup ./lla ./lla_conf.yml >> lla_nohup.log 2>&1 &
 ```
 
 ## 上报数据格式
-```json
+``` json
 {
     "@logId": "cc621467-b53e-4e76-84b5-5679567c986f",
     "@message": "log content here...",
