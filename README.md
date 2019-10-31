@@ -45,7 +45,59 @@ mv lla_32bit lla
 #### 2. 创建配置文件，新建lla_conf.yml文件，内容如下
 
 ```
-# 输入配置:
+# 日志收集配置块
+input:
+
+# 存放各类日志文件的glob匹配路径
+-log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/*","/path/to/error/log/.log"]
+
+  # 在输入中排除符合正则表达式列表的日志行
+  #exclude_lines: ["test"]
+
+  # 包含输入中符合正则表达式列表的日志行
+  #include_lines: ["^\\w+"]
+
+  # 忽略掉符合正则表达式列表的文件
+  #exclude_files: ["\\d{4}.log"]
+
+  # 默认为false, 从文件开始处重新发送所有内容。设置为true会从文件尾开始监控文件新增内容把新增的每一行文件进行发送
+  tail_files: true
+
+  #检测是否有新增日志文件的频率，默认为10秒
+  #scan_frequency: 10
+
+  # 最后一次读取文件后，持续时间内没有再写入日志，将关闭文件句柄，默认是 5mecho
+  #close_inactive: 300
+
+  # 多行匹配
+  #multiline:
+    # 多行匹配点
+    #pattern: "^error_log"
+    # 最多匹配多少行，默认500
+    #max_lines: 500
+
+# 输出配置块:
+output:
+
+  # 把收集到的日志发送到指定API
+  # 请求boby中带有JSON数据，以POST方法发送至指定接口
+  #api_server:
+    # 是否启用
+    #enable: false
+    #url: "http://127.0.0.1:9200/nma"
+
+  elasticsearch:
+    # 是否启用
+    enable: false
+    host: ["http://127.0.0.1:9200/nma"]
+    # 输出认证.
+    #username: "admin"
+    #password: "s3cr3t"
+
+# 通用配置块
+
+# 应用名
+#name: "llog"
 # 是否上报系统级别日志（cpu，内存，磁盘，网络）, 默认为false，不上报
 #sys_info: true
 
@@ -55,49 +107,6 @@ mv lla_32bit lla
 # 设置最大使用cpu数量, 默认无限制
 #max_procs: 8
 
-# 存放各类日志文件的glob匹配路径
-#log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/*","/path/to/error/log/.log"]
-
-# 在输入中排除符合正则表达式列表的日志行
-#exclude_lines: ["test"]
-
-# 包含输入中符合正则表达式列表的日志行
-#include_lines: ["^\\w+"]
-
-# 忽略掉符合正则表达式列表的文件
-#exclude_files: ["\\d{4}.log"]
-
-# 默认为false, 从文件开始处重新发送所有内容。设置为true会从文件尾开始监控文件新增内容把新增的每一行文件进行发送
-#tail_files: false
-
-#检测是否有新增日志文件的频率，默认为10秒
-#scan_frequency: 10
-
-# 最后一次读取文件后，持续时间内没有再写入日志，将关闭文件句柄，默认是 5mecho
-#close_inactive: 300
-
-# 多行匹配
-#multiline:
-  # 多行匹配点
-  #pattern: "^error_log"
-  # 最多匹配多少行，默认500
-  #max_lines: 500
-
-# 输出配置:
-# 把收集到的日志发送到指定API
-# 请求boby中带有JSON数据，以POST方法发送至指定接口
-#api_server:
-  # 是否启用
-  #enable: false
-  #url: "http://127.0.0.1:9200/nma"
-
-#elasticsearch:
-  # 是否启用
-  #enable: false
-  #host: ["http://127.0.0.1:9200/nma"]
-  # 输出认证.
-  #username: "admin"
-  #password: "s3cr3t"
 ```
 
 #### 3. 后台启动lla agent
@@ -112,12 +121,12 @@ nohup ./lla ./lla_conf.yml >> lla_nohup.log 2>&1 &
 ## 上报数据格式
 ```json
 {
-"@logId": "cc621467-b53e-4e76-84b5-5679567c986f",
-"@message": "log content here...",
-"@sysInfo": "{\"dataTime\":\"2019-09-29T18:09:17\",\"logicalCores\":16...}",
-"@timestamps": 1569751757188,
-"@type": "LLOG",
-"@version": "1.0.0"
+    "@logId": "cc621467-b53e-4e76-84b5-5679567c986f",
+    "@message": "log content here...",
+    "@timestamps": 1569751757188,
+    "@name": "LLOG",
+    "@version": "1.0.0",
+    "@type": "normal|error|system"
 }
 
 ```
