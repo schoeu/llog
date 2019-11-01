@@ -63,8 +63,13 @@ output:
 # 设置最大使用cpu数量, 默认无限制
 #max_procs: 8
 
-# 文档状态保存，快照当前状态到本地，下次启动会优先使用快照内容
-#snapshot_dir: '/path/to/snapshot/file'
+# 文件状态保持配置
+#snapshot:
+  # 文件状态开关, 默认不开启
+  #enable: false
 
-# 定时保存文件状态，默认为5秒
-#snapshot_during: 5
+  # 文档状态保存，快照当前状态到本地，下次启动会优先使用快照内容
+  #snapshot_dir: '/path/to/snapshot/file'
+
+  # 定时保存文件状态，默认为5秒
+  #snapshot_during: 5

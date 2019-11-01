@@ -32,8 +32,6 @@ func StartAction(c *cli.Context) {
 		reScanTask(&v)
 	}
 
-	recoverState()
-
 	// set app name
 	appName := conf.Name
 	if appName == "" {
@@ -63,8 +61,13 @@ func StartAction(c *cli.Context) {
 	// watch file change
 	watch()
 
-	// take snapshot for file status
-	takeSnap()
+	if conf.SnapShot.Enable {
+		// take snapshot for file status
+		takeSnap()
+
+		// recovery file state
+		recoverState()
+	}
 
 	// debug
 	//debugInfo()

@@ -84,7 +84,7 @@ func sysInfo() {
 
 func takeSnap() {
 	conf := util.GetConfig()
-	snd := conf.SnapShotDuring
+	snd := conf.SnapShot.SnapShotDuring
 	if snd == 0 {
 		snd = snapShotDefault
 	}
@@ -134,7 +134,7 @@ func debugInfo() {
 
 func getSnapPath() string {
 	conf := util.GetConfig()
-	snap := conf.SnapshotDir
+	snap := conf.SnapShot.SnapshotDir
 	if snap == "" {
 		snap = filepath.Join(util.GetTempDir(), util.SnapshotDir, util.SnapshotFile)
 	}

@@ -41,14 +41,17 @@ type outputConfig struct {
 }
 
 type Config struct {
-	Name           string
-	MaxProcs       int  `yaml:"max_procs"`
-	SysInfo        bool `yaml:"sys_info"`
-	SysInfoDuring  int  `yaml:"sys_info_during"`
-	Input          []SingleConfig
-	Output         outputConfig
-	SnapshotDir    string `yaml:"snapshot_dir"`
-	SnapShotDuring int    `yaml:"snapshot_during"`
+	Name          string
+	MaxProcs      int  `yaml:"max_procs"`
+	SysInfo       bool `yaml:"sys_info"`
+	SysInfoDuring int  `yaml:"sys_info_during"`
+	Input         []SingleConfig
+	Output        outputConfig
+	SnapShot      struct {
+		Enable         bool
+		SnapshotDir    string `yaml:"snapshot_dir"`
+		SnapShotDuring int    `yaml:"snapshot_during"`
+	}
 }
 
 func InitCfg(p string) error {
