@@ -29,7 +29,7 @@ func closeFileHandle(sc *util.SingleConfig) {
 				li, err := getLogInfoIns(v)
 				util.ErrHandler(err)
 				if li != nil && li.Sc == sc && time.Since(time.Unix(li.Status[1], 0)) > time.Second*time.Duration(aliveTime) {
-					fmt.Println("stop watch: ", v)
+					fmt.Println("[LLOG] stop watch: ", v)
 					delInfo(v)
 				}
 			}
@@ -123,10 +123,10 @@ func debugInfo() {
 		defer util.Recover()
 		for {
 			<-ticker.C
-			fmt.Println("\n\n\nsm count: ", sm.Count())
+			fmt.Println("\n\n\n[LLOG] sm count: ", sm.Count())
 			for k, v := range sm.Items() {
 				val := v.(logInfo)
-				fmt.Println(k, "--->", val)
+				fmt.Println("[LLOG] ", k, "--->", val)
 			}
 		}
 	}()
@@ -138,5 +138,6 @@ func getSnapPath() string {
 	if snap == "" {
 		snap = filepath.Join(util.GetTempDir(), util.SnapshotDir, util.SnapshotFile)
 	}
+	fmt.Println("[LLOG] snapshot file path: ", snap)
 	return snap
 }

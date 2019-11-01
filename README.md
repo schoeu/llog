@@ -28,29 +28,24 @@
 #### 1. 下载对应版本LLA
 ``` shell script
 # 下载linux 64 bit
-wget http://qiniucdn.schoeu.com/lla_64bit
+wget http://qiniucdn.schoeu.com/llog_64bit
 
-# 更改程序名
-mv lla_64bit lla
 ```
 或
 ``` shell script
 # 下载linux 32 bit
-wget http://qiniucdn.schoeu.com/lla_32bit
+wget http://qiniucdn.schoeu.com/llog_32bit
 
-# 更改程序名
-mv lla_32bit lla
 ```
 
-#### 2. 创建配置文件，新建lla_conf.yml文件，内容如下
+#### 2. 创建配置文件，新建llog_conf.yml文件，内容如下
 
 ``` yaml
 # 日志收集配置块
 input:
 
 # 存放各类日志文件的glob匹配路径
-- log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/*","/path/to/error/log/.log"]
-
+- log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/**/*.log"]
   # 在输入中排除符合正则表达式列表的日志行
   #exclude_lines: ["test"]
 
@@ -68,22 +63,16 @@ input:
 
   # 最后一次读取文件后，持续时间内没有再写入日志，将关闭文件句柄，默认是 5分钟
   #close_inactive: 300
-  
+
   # 发送自定义字段，默认会放在fields字段下, 当然也可以使用json字符串, 如  '{"a":"b"}'
-  #fields: "some field here"  
+  #fields: "some field here"
 
   # 多行匹配
   #multiline:
-    # 多行匹配点
-    #pattern: "^error_log"
-    # 最多匹配多少行，默认10
-    #max_lines: 10
-
-#- log_path: ["/other/log/path"]
-
-  # 在输入中排除符合正则表达式列表的日志行
-  #exclude_lines: ["test"]
-  # ...
+  # 多行匹配点
+  #pattern: "^error_log"
+  # 最多匹配多少行，默认10
+  #max_lines: 10
 
 # 输出配置块:
 output:
@@ -91,9 +80,9 @@ output:
   # 把收集到的日志发送到指定API
   # 请求boby中带有JSON数据，以POST方法发送至指定接口
   #api_server:
-    # 是否启用
-    #enable: false
-    #url: "http://127.0.0.1:9200/nma"
+  # 是否启用
+  #enable: false
+  #url: "http://127.0.0.1:9200/nma"
 
   elasticsearch:
     # 是否启用
@@ -117,15 +106,21 @@ output:
 # 设置最大使用cpu数量, 默认无限制
 #max_procs: 8
 
+# 文档状态保存，快照当前状态到本地，下次启动会优先使用快照内容
+#snapshot_dir: '/path/to/snapshot/file'
+
+# 定时保存文件状态，默认为5秒
+#snapshot_during: 5
+
 ```
 
-#### 3. 后台启动lla agent
+#### 3. 后台启动llog
 ``` shell script
 # 默认配置启动
-nohup ./lla >> lla_nohup.log 2>&1 &
+nohup ./llog_64bit >> llog_nohup.log 2>&1 &
 
 # 指定配置文件启动
-nohup ./lla ./lla_conf.yml >> lla_nohup.log 2>&1 &
+nohup ./llog_64bit ./llog_conf.yml >> llog_nohup.log 2>&1 &
 ```
 
 ## 上报数据格式

@@ -64,7 +64,7 @@ output:
 #max_procs: 8
 
 # 文档状态保存，快照当前状态到本地，下次启动会优先使用快照内容
-#snapshotDIR: '/path/to/snapshot/file'
+#snapshot_dir: '/path/to/snapshot/file'
 
 # 定时保存文件状态，默认为5秒
-snapshot_during: 2
+#snapshot_during: 5

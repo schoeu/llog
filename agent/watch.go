@@ -33,7 +33,7 @@ func addWatch() {
 			}
 			err := fsWatcher.Add(v)
 			util.ErrHandler(err)
-			fmt.Println("watch file: ", v)
+			fmt.Println("[LLOG] watch file: ", v)
 		}
 	}
 }

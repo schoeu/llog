@@ -47,8 +47,8 @@ type Config struct {
 	SysInfoDuring  int  `yaml:"sys_info_during"`
 	Input          []SingleConfig
 	Output         outputConfig
-	SnapshotDir    string
-	SnapShotDuring int `yaml:"snapshot_during"`
+	SnapshotDir    string `yaml:"snapshot_dir"`
+	SnapShotDuring int    `yaml:"snapshot_during"`
 }
 
 func InitCfg(p string) error {

@@ -54,7 +54,7 @@ func recoverState() {
 		ss := storeState{}
 		err = json.Unmarshal(d, &ss)
 		if err != nil {
-			fmt.Println("recover file state error")
+			fmt.Println("[LLOG] recover file state error")
 			return
 		}
 
