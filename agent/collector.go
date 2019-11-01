@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -18,6 +18,7 @@ type logStruct map[string]string
 
 var apiServer, name string
 var maxLinesDefault = 10
+var snapShotDefault = 5
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 const errorType = "error"
@@ -39,8 +40,33 @@ func fileGlob(sc *util.SingleConfig) {
 		util.ErrHandler(err)
 		if len(p) > 0 {
 			initState(p, sc)
+			// recover file state
 		}
 		// update file state.
+	}
+}
+
+func recoverState() {
+	snap := getSnapPath()
+	if snap != "" {
+		d, err := ioutil.ReadFile(snap)
+		util.ErrHandler(err)
+		ss := storeState{}
+		err = json.Unmarshal(d, &ss)
+		if err != nil {
+			fmt.Println("recover file state error")
+			return
+		}
+
+		for k, v := range ss {
+			li, err := getLogInfoIns(k)
+			util.ErrHandler(err)
+			sm.Set(k, logInfo{
+				Sc:      li.Sc,
+				Status:  v,
+				FileIns: li.FileIns,
+			})
+		}
 	}
 }
 
@@ -63,7 +89,7 @@ func lineFilter(k string) func(*[]byte) {
 	fi, err := getLogInfoIns(k)
 	util.ErrHandler(err)
 	if fi != nil {
-		sc := fi.sc
+		sc := fi.Sc
 
 		include, exclude, multiline := sc.Include, sc.Exclude, sc.Multiline.Pattern
 		confMaxByte, maxLines := sc.MaxBytes, sc.Multiline.MaxLines
@@ -83,7 +109,7 @@ func lineFilter(k string) func(*[]byte) {
 						if ok {
 							return
 						}
-						doPush(rs, errorType)
+						doPush(rs, errorType, sc)
 						count = 0
 						buf = bytes.Buffer{}
 					}
@@ -99,7 +125,7 @@ func lineFilter(k string) func(*[]byte) {
 				if ok {
 					return
 				}
-				doPush(rs, normalType)
+				doPush(rs, normalType, sc)
 			}
 		}
 	}
@@ -119,7 +145,7 @@ func filter(include, exclude []string, line []byte, max int) (bool, *[]byte) {
 	return false, &line
 }
 
-func doPush(text *[]byte, types string) {
+func doPush(text *[]byte, types string, sc *util.SingleConfig) {
 	// 日志签名
 	var rs = logStruct{
 		"@message":    string(*text),
@@ -128,6 +154,11 @@ func doPush(text *[]byte, types string) {
 		"@timestamps": strconv.FormatInt(time.Now().UnixNano()/1e6, 10),
 		"@types":      types,
 		"@name":       name,
+		"@fields":     "",
+	}
+
+	if sc != nil && sc.Fields != "" {
+		rs["@fields"] = sc.Fields
 	}
 
 	if apiServer != "" {

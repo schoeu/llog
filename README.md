@@ -12,7 +12,7 @@
 |程序|监控文件数|占用内存|线程数|
 |:--:|:--:|:--:|:--:|
 |llog|4|5.8MB|23|
-|llog|20|6.6MB|33|
+|llog|20|6.8MB|34|
 |llog|50|7.1MB|36|
 |filebeat|4|13.9MB|31|
 |filebeat|20|16.2MB|37|
@@ -49,7 +49,7 @@ mv lla_32bit lla
 input:
 
 # 存放各类日志文件的glob匹配路径
--log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/*","/path/to/error/log/.log"]
+- log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/*","/path/to/error/log/.log"]
 
   # 在输入中排除符合正则表达式列表的日志行
   #exclude_lines: ["test"]
@@ -66,15 +66,24 @@ input:
   #检测是否有新增日志文件的频率，默认为10秒
   #scan_frequency: 10
 
-  # 最后一次读取文件后，持续时间内没有再写入日志，将关闭文件句柄，默认是 5mecho
+  # 最后一次读取文件后，持续时间内没有再写入日志，将关闭文件句柄，默认是 5分钟
   #close_inactive: 300
+  
+  # 发送自定义字段，默认会放在fields字段下, 当然也可以使用json字符串, 如  '{"a":"b"}'
+  #fields: "some field here"  
 
   # 多行匹配
   #multiline:
     # 多行匹配点
     #pattern: "^error_log"
-    # 最多匹配多少行，默认500
-    #max_lines: 500
+    # 最多匹配多少行，默认10
+    #max_lines: 10
+
+#- log_path: ["/other/log/path"]
+
+  # 在输入中排除符合正则表达式列表的日志行
+  #exclude_lines: ["test"]
+  # ...
 
 # 输出配置块:
 output:
@@ -89,7 +98,8 @@ output:
   elasticsearch:
     # 是否启用
     enable: false
-    host: ["http://127.0.0.1:9200/nma"]
+    host: ["http://127.0.0.1:9200/"]
+    index: "nma"
     # 输出认证.
     #username: "admin"
     #password: "s3cr3t"
@@ -127,6 +137,7 @@ nohup ./lla ./lla_conf.yml >> lla_nohup.log 2>&1 &
     "@name": "LLOG",
     "@version": "1.0.0",
     "@type": "normal|error|system"
+    "@fields": "{\"key\":\"value\"}"
 }
 
 ```
@@ -148,6 +159,8 @@ nohup ./lla ./lla_conf.yml >> lla_nohup.log 2>&1 &
 - [x] 新增文件检测
 - [x] 自动关闭长期不活动文件句柄
 - [x] 可限制cpu最多使用核数
+- [x] 支持自定义字段，用于检索
+- [x] 保存文件状态
 - [ ] 支持socket数据传输
 - [ ] 可设置日志上报线程数
-- [ ] 支持多套独立配置方案
+- [ ] 支持多套独立配置

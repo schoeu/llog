@@ -2,6 +2,8 @@ package agent
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/schoeu/gopsinfo"
@@ -12,38 +14,44 @@ const aliveTimeDefault = 300
 const freqDefault = 600
 
 func closeFileHandle(sc *util.SingleConfig) {
-	defer util.Recover()
-
 	aliveTime := sc.CloseInactive
 	if aliveTime < 1 {
 		aliveTime = aliveTimeDefault
 	}
 	ticker := time.NewTicker(time.Duration(aliveTime) * time.Second)
-	for {
-		<-ticker.C
-		for _, v := range sm.Keys() {
-			li, err := getLogInfoIns(v)
-			util.ErrHandler(err)
-			if li != nil && li.sc == sc && time.Since(time.Unix(li.status[1], 0)) > time.Second*time.Duration(aliveTime) {
-				fmt.Println("stop watch: ", v)
-				delInfo(v)
+
+	go func() {
+		defer util.Recover()
+
+		for {
+			<-ticker.C
+			for _, v := range sm.Keys() {
+				li, err := getLogInfoIns(v)
+				util.ErrHandler(err)
+				if li != nil && li.Sc == sc && time.Since(time.Unix(li.Status[1], 0)) > time.Second*time.Duration(aliveTime) {
+					fmt.Println("stop watch: ", v)
+					delInfo(v)
+				}
 			}
 		}
-	}
+	}()
 }
 
 func reScanTask(sc *util.SingleConfig) {
-	defer util.Recover()
-
 	freq := sc.ScanFrequency
 	if freq < 1 {
 		freq = freqDefault
 	}
-	ticker := time.NewTicker(time.Duration(freq) * time.Second)
-	for {
-		<-ticker.C
-		reScan()
-	}
+
+	go func() {
+		defer util.Recover()
+
+		ticker := time.NewTicker(time.Duration(freq) * time.Second)
+		for {
+			<-ticker.C
+			reScan()
+		}
+	}()
 }
 
 func sysInfo() {
@@ -68,10 +76,45 @@ func sysInfo() {
 				psInfo = gopsinfo.GetPsInfo(d)
 				sysData, err := json.Marshal(psInfo)
 				util.ErrHandler(err)
-				doPush(&sysData, systemType)
+				doPush(&sysData, systemType, nil)
 			}
 		}()
 	}
+}
+
+func takeSnap() {
+	conf := util.GetConfig()
+	snd := conf.SnapShotDuring
+	if snd == 0 {
+		snd = snapShotDefault
+	}
+
+	ticker := time.NewTicker(time.Duration(snd) * time.Second)
+	go func() {
+		defer util.Recover()
+		for {
+			<-ticker.C
+
+			store := storeState{}
+			snap := getSnapPath()
+			exist, err := util.PathExist(snap)
+			util.ErrHandler(err)
+			if !exist {
+				err = os.Mkdir(filepath.Dir(snap), os.ModePerm)
+			}
+			f, err := os.Create(snap)
+			for _, v := range sm.Keys() {
+				li, err := getLogInfoIns(v)
+				util.ErrHandler(err)
+				store[v] = li.Status
+			}
+			d, err := json.Marshal(store)
+			util.ErrHandler(err)
+			_, err = f.Write(d)
+			err = f.Close()
+			util.ErrHandler(err)
+		}
+	}()
 }
 
 func debugInfo() {
@@ -87,4 +130,13 @@ func debugInfo() {
 			}
 		}
 	}()
+}
+
+func getSnapPath() string {
+	conf := util.GetConfig()
+	snap := conf.SnapshotDir
+	if snap == "" {
+		snap = filepath.Join(util.GetTempDir(), util.SnapshotDir, util.SnapshotFile)
+	}
+	return snap
 }

@@ -19,6 +19,7 @@ type SingleConfig struct {
 	TailFiles     bool     `yaml:"tail_files"`
 	ScanFrequency int      `yaml:"scan_frequency"`
 	CloseInactive int      `yaml:"close_inactive"`
+	Fields        string
 	Multiline     struct {
 		Pattern  string
 		MaxLines int `yaml:"max_lines"`
@@ -40,12 +41,14 @@ type outputConfig struct {
 }
 
 type Config struct {
-	Name          string
-	MaxProcs      int  `yaml:"max_procs"`
-	SysInfo       bool `yaml:"sys_info"`
-	SysInfoDuring int  `yaml:"sys_info_during"`
-	Input         []SingleConfig
-	Output        outputConfig
+	Name           string
+	MaxProcs       int  `yaml:"max_procs"`
+	SysInfo        bool `yaml:"sys_info"`
+	SysInfoDuring  int  `yaml:"sys_info_during"`
+	Input          []SingleConfig
+	Output         outputConfig
+	SnapshotDir    string
+	SnapShotDuring int `yaml:"snapshot_during"`
 }
 
 func InitCfg(p string) error {

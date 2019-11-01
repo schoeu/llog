@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"os"
 	"sync"
 	"time"
 
@@ -14,12 +13,6 @@ import (
 
 var once sync.Once
 var fsWatcher *fsnotify.Watcher
-
-type logInfo struct {
-	sc      *util.SingleConfig
-	status  [2]int64
-	fileIns *os.File
-}
 
 func addWatch() {
 	var err error
@@ -33,7 +26,7 @@ func addWatch() {
 		li, err := getLogInfoIns(v)
 		util.ErrHandler(err)
 		if li != nil {
-			excludeFiles := li.sc.ExcludeFiles
+			excludeFiles := li.Sc.ExcludeFiles
 			// log path store.
 			if len(excludeFiles) > 0 && util.IsInclude([]byte(v), excludeFiles) {
 				continue
@@ -55,7 +48,7 @@ func watch() {
 				// add new file
 				if ev.Op&fsnotify.Create == fsnotify.Create {
 					if ev.Name != "" {
-						reScan()
+						//reScan()
 					}
 				}
 				//change file content
@@ -67,7 +60,7 @@ func watch() {
 
 						if fi != nil {
 							var push = lineFilter(key)
-							f := fi.fileIns
+							f := fi.FileIns
 							var count int
 							offset, err := f.Seek(0, io.SeekCurrent)
 							util.ErrHandler(err)
@@ -87,9 +80,9 @@ func watch() {
 								//_, seekErr := f.Seek(offset, io.SeekStart)
 								//util.ErrHandler(seekErr)
 								sm.Set(key, logInfo{
-									sc:      fi.sc,
-									status:  [2]int64{offset + int64(count+1), time.Now().Unix()},
-									fileIns: f,
+									Sc:      fi.Sc,
+									Status:  [2]int64{offset + int64(count+1), time.Now().Unix()},
+									FileIns: f,
 								})
 								continue
 							}

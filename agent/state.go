@@ -8,11 +8,17 @@ import (
 	"github.com/schoeu/llog/util"
 )
 
+type logInfo struct {
+	Sc      *util.SingleConfig
+	Status  [2]int64
+	FileIns *os.File
+}
+
 func delInfo(k string) {
 	li, err := getLogInfoIns(k)
 	util.ErrHandler(err)
-	if li != nil && li.fileIns != nil {
-		err := li.fileIns.Close()
+	if li != nil && li.FileIns != nil {
+		err := li.FileIns.Close()
 		util.ErrHandler(err)
 	}
 	sm.Remove(k)
@@ -24,9 +30,9 @@ func initState(paths []string, sc *util.SingleConfig) {
 		if v != "" {
 			f, offset := getFileIns(v, seekType)
 			sm.SetIfAbsent(v, logInfo{
-				sc:      sc,
-				fileIns: f,
-				status:  [2]int64{offset, time.Now().Unix()},
+				Sc:      sc,
+				FileIns: f,
+				Status:  [2]int64{offset, time.Now().Unix()},
 			})
 		}
 	}
