@@ -1,11 +1,11 @@
 package agent
 
 import (
-	"fmt"
+	"runtime"
+
 	cmap "github.com/orcaman/concurrent-map"
 	"github.com/schoeu/llog/util"
 	"github.com/urfave/cli"
-	"runtime"
 )
 
 type storeState map[string][2]int64
@@ -36,11 +36,6 @@ func StartAction(c *cli.Context) {
 
 		// TODO
 		reScanTask(&v)
-	}
-
-	for _, v := range sm.Keys() {
-		li, _ := getLogInfoIns(v)
-		fmt.Println("sm.Keys()111", v, li.Sc.ScanFrequency)
 	}
 
 	// set app name
@@ -81,7 +76,7 @@ func StartAction(c *cli.Context) {
 	}
 
 	// debug
-	debugInfo()
+	//debugInfo()
 }
 
 func reScan() {

@@ -145,7 +145,7 @@ nohup ./llog_64bit ./llog_conf.yml >> llog_nohup.log 2>&1 &
     "@timestamps": 1569751757188,
     "@name": "LLOG",
     "@version": "1.0.0",
-    "@type": "normal|error|system"
+    "@type": "normal|error|system",
     "@fields": "{\"key\":\"value\"}"
 }
 
@@ -171,5 +171,4 @@ nohup ./llog_64bit ./llog_conf.yml >> llog_nohup.log 2>&1 &
 - [x] 支持自定义字段，用于检索
 - [x] 保存文件状态
 - [x] 支持多套独立配置
-- [ ] 支持socket数据传输
 - [ ] 可设置日志上报线程数

@@ -21,7 +21,9 @@ func delInfo(k string) {
 		err := li.FileIns.Close()
 		util.ErrHandler(err)
 	}
-	sm.Remove(k)
+	if sm.Has(k) {
+		sm.Remove(k)
+	}
 }
 
 func initState(paths []string, sc util.SingleConfig) {

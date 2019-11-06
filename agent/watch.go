@@ -46,11 +46,11 @@ func watch() {
 			select {
 			case ev := <-fsWatcher.Events:
 				// add new file
-				if ev.Op&fsnotify.Create == fsnotify.Create {
-					if ev.Name != "" {
-						//reScan()
-					}
-				}
+				//if ev.Op&fsnotify.Create == fsnotify.Create {
+				//	if ev.Name != "" {
+				//		reScan()
+				//	}
+				//}
 				//change file content
 				if ev.Op&fsnotify.Write == fsnotify.Write {
 					key := ev.Name
@@ -98,8 +98,7 @@ func watch() {
 				// rename log file
 				if ev.Op&fsnotify.Rename == fsnotify.Rename {
 					if ev.Name != "" {
-						//delCh <- ev.Name
-						//initState([]string{ev.Name}, sc)
+						reScan()
 					}
 				}
 			case err := <-fsWatcher.Errors:

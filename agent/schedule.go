@@ -119,7 +119,7 @@ func takeSnap() {
 }
 
 func debugInfo() {
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(10 * time.Second)
 	go func() {
 		defer util.Recover()
 		for {
@@ -128,6 +128,7 @@ func debugInfo() {
 				val := v.(logInfo)
 				fmt.Println("[LLOG]", k, val.Sc)
 			}
+			fmt.Println("[LLOG]", sm.Keys())
 		}
 	}()
 }
