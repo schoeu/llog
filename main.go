@@ -14,9 +14,9 @@ func main() {
 	app.Name = util.AppName
 	app.Usage = util.AppUsage
 
-	defer util.Recover()
-
 	app.Action = agent.StartAction
 	err := app.Run(os.Args)
 	util.ErrHandler(err)
+
+	select {}
 }

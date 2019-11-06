@@ -45,7 +45,7 @@ wget http://qiniucdn.schoeu.com/llog_32bit
 input:
 
 # 存放各类日志文件的glob匹配路径
-- log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/**/*.log"]
+- log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/nm_apps?/*.log"]
   # 在输入中排除符合正则表达式列表的日志行
   #exclude_lines: ["test"]
 
@@ -59,7 +59,7 @@ input:
   tail_files: true
 
   #检测是否有新增日志文件的频率，默认为10秒
-  #scan_frequency: 10
+  scan_frequency: 10
 
   # 最后一次读取文件后，持续时间内没有再写入日志，将关闭文件句柄，默认是 5分钟
   #close_inactive: 300
@@ -68,11 +68,20 @@ input:
   #fields: "some field here"
 
   # 多行匹配
-  #multiline:
-  # 多行匹配点
-  #pattern: "^error_log"
-  # 最多匹配多少行，默认10
-  #max_lines: 10
+  multiline:
+    # 多行匹配点
+    pattern: "^normal_log"
+    # 最多匹配多少行，默认10
+    #max_lines: 10
+
+- log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm/*.log"]
+  # 多行匹配
+  multiline:
+    # 多行匹配点
+    pattern: "^error_log"
+    # 最多匹配多少行，默认10
+    max_lines: 5
+  scan_frequency: 20
 
 # 输出配置块:
 output:
@@ -161,6 +170,6 @@ nohup ./llog_64bit ./llog_conf.yml >> llog_nohup.log 2>&1 &
 - [x] 可限制cpu最多使用核数
 - [x] 支持自定义字段，用于检索
 - [x] 保存文件状态
+- [x] 支持多套独立配置
 - [ ] 支持socket数据传输
 - [ ] 可设置日志上报线程数
-- [ ] 支持多套独立配置

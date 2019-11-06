@@ -1,11 +1,11 @@
 package agent
 
 import (
-	"runtime"
-
+	"fmt"
 	cmap "github.com/orcaman/concurrent-map"
 	"github.com/schoeu/llog/util"
 	"github.com/urfave/cli"
+	"runtime"
 )
 
 type storeState map[string][2]int64
@@ -13,6 +13,8 @@ type storeState map[string][2]int64
 var sm = cmap.New()
 
 func StartAction(c *cli.Context) {
+	defer util.Recover()
+
 	configFile := util.GetAbsPath(util.GetCwd(), c.Args().First())
 	err := util.InitCfg(configFile)
 	conf := util.GetConfig()
@@ -25,11 +27,20 @@ func StartAction(c *cli.Context) {
 	inputs := conf.Input
 	for _, v := range inputs {
 		// collect log
-		fileGlob(&v)
+
+		fileGlob(v)
+
 		// close file handle schedule
-		closeFileHandle(&v)
+		closeFileHandle(v)
 		// watch new log file schedule
+
+		// TODO
 		reScanTask(&v)
+	}
+
+	for _, v := range sm.Keys() {
+		li, _ := getLogInfoIns(v)
+		fmt.Println("sm.Keys()111", v, li.Sc.ScanFrequency)
 	}
 
 	// set app name
@@ -65,20 +76,18 @@ func StartAction(c *cli.Context) {
 		// take snapshot for file status
 		takeSnap()
 
-		// recovery file state
+		// recover file state
 		recoverState()
 	}
 
 	// debug
-	//debugInfo()
-
-	select {}
+	debugInfo()
 }
 
 func reScan() {
 	inputs := util.GetConfig().Input
 	for _, v := range inputs {
 		// collect log.
-		fileGlob(&v)
+		fileGlob(v)
 	}
 }

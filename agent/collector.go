@@ -25,13 +25,12 @@ const errorType = "error"
 const normalType = "normal"
 const systemType = "system"
 
-func fileGlob(sc *util.SingleConfig) {
+func fileGlob(sc util.SingleConfig) {
 	allLogs := sc.LogDir
 	if len(allLogs) == 0 {
 		logFileDir := util.GetTempDir()
 		allLogs = append(allLogs, filepath.Join(logFileDir, util.LogDir, util.FilePattern))
 	}
-
 	// allLogs: - /var/logs/**/*.log
 	for _, v := range allLogs {
 		v = pathPreProcess(v)
@@ -40,7 +39,6 @@ func fileGlob(sc *util.SingleConfig) {
 		util.ErrHandler(err)
 		if len(p) > 0 {
 			initState(p, sc)
-			// recover file state
 		}
 		// update file state.
 	}
@@ -60,12 +58,13 @@ func recoverState() {
 
 		for k, v := range ss {
 			li, err := getLogInfoIns(k)
-			util.ErrHandler(err)
-			sm.Set(k, logInfo{
-				Sc:      li.Sc,
-				Status:  v,
-				FileIns: li.FileIns,
-			})
+			if li != nil && err == nil {
+				sm.Set(k, logInfo{
+					Sc:      li.Sc,
+					Status:  v,
+					FileIns: li.FileIns,
+				})
+			}
 		}
 	}
 }
@@ -92,7 +91,7 @@ func lineFilter(k string) func(*[]byte) {
 		sc := fi.Sc
 
 		include, exclude, multiline := sc.Include, sc.Exclude, sc.Multiline.Pattern
-		confMaxByte, maxLines := sc.MaxBytes, sc.Multiline.MaxLines
+		confMaxByte, maxLines, fields := sc.MaxBytes, sc.Multiline.MaxLines, sc.Fields
 
 		if maxLines == 0 {
 			maxLines = maxLinesDefault
@@ -109,7 +108,7 @@ func lineFilter(k string) func(*[]byte) {
 						if ok {
 							return
 						}
-						doPush(rs, errorType, sc)
+						doPush(rs, errorType, fields)
 						count = 0
 						buf = bytes.Buffer{}
 					}
@@ -125,7 +124,7 @@ func lineFilter(k string) func(*[]byte) {
 				if ok {
 					return
 				}
-				doPush(rs, normalType, sc)
+				doPush(rs, normalType, fields)
 			}
 		}
 	}
@@ -145,7 +144,7 @@ func filter(include, exclude []string, line []byte, max int) (bool, *[]byte) {
 	return false, &line
 }
 
-func doPush(text *[]byte, types string, sc *util.SingleConfig) {
+func doPush(text *[]byte, types, fields string) {
 	// 日志签名
 	var rs = logStruct{
 		"@message":    string(*text),
@@ -157,8 +156,8 @@ func doPush(text *[]byte, types string, sc *util.SingleConfig) {
 		"@fields":     "",
 	}
 
-	if sc != nil && sc.Fields != "" {
-		rs["@fields"] = sc.Fields
+	if fields != "" {
+		rs["@fields"] = fields
 	}
 
 	if apiServer != "" {
@@ -172,7 +171,7 @@ func doPush(text *[]byte, types string, sc *util.SingleConfig) {
 func getLogInfoIns(p string) (*logInfo, error) {
 	logContent, ok := sm.Get(p)
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("file: %s is not exist in sync map", p))
+		return nil, errors.New(fmt.Sprintf("[LLOG] error: %s is not exist in sync map", p))
 	}
 	li := logContent.(logInfo)
 	return &li, nil

@@ -13,7 +13,7 @@ import (
 const aliveTimeDefault = 300
 const freqDefault = 600
 
-func closeFileHandle(sc *util.SingleConfig) {
+func closeFileHandle(sc util.SingleConfig) {
 	aliveTime := sc.CloseInactive
 	if aliveTime < 1 {
 		aliveTime = aliveTimeDefault
@@ -28,7 +28,7 @@ func closeFileHandle(sc *util.SingleConfig) {
 			for _, v := range sm.Keys() {
 				li, err := getLogInfoIns(v)
 				util.ErrHandler(err)
-				if li != nil && li.Sc == sc && time.Since(time.Unix(li.Status[1], 0)) > time.Second*time.Duration(aliveTime) {
+				if li != nil && stringEqual(li.Sc.LogDir, sc.LogDir) && time.Since(time.Unix(li.Status[1], 0)) > time.Second*time.Duration(aliveTime) {
 					fmt.Println("[LLOG] stop watch: ", v)
 					delInfo(v)
 				}
@@ -42,7 +42,6 @@ func reScanTask(sc *util.SingleConfig) {
 	if freq < 1 {
 		freq = freqDefault
 	}
-
 	go func() {
 		defer util.Recover()
 
@@ -76,7 +75,7 @@ func sysInfo() {
 				psInfo = gopsinfo.GetPsInfo(d)
 				sysData, err := json.Marshal(psInfo)
 				util.ErrHandler(err)
-				doPush(&sysData, systemType, nil)
+				doPush(&sysData, systemType, "")
 			}
 		}()
 	}
@@ -106,7 +105,9 @@ func takeSnap() {
 			for _, v := range sm.Keys() {
 				li, err := getLogInfoIns(v)
 				util.ErrHandler(err)
-				store[v] = li.Status
+				if li != nil {
+					store[v] = li.Status
+				}
 			}
 			d, err := json.Marshal(store)
 			util.ErrHandler(err)
@@ -123,10 +124,9 @@ func debugInfo() {
 		defer util.Recover()
 		for {
 			<-ticker.C
-			fmt.Println("\n\n\n[LLOG] sm count: ", sm.Count())
 			for k, v := range sm.Items() {
 				val := v.(logInfo)
-				fmt.Println("[LLOG] ", k, "--->", val)
+				fmt.Println("[LLOG]", k, val.Sc)
 			}
 		}
 	}()
@@ -140,4 +140,23 @@ func getSnapPath() string {
 	}
 	fmt.Println("[LLOG] snapshot file path: ", snap)
 	return snap
+}
+
+func stringEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	if (a == nil) != (b == nil) {
+		return false
+	}
+
+	b = b[:len(a)]
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+
+	return true
 }

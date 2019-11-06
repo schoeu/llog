@@ -24,13 +24,13 @@ func delInfo(k string) {
 	sm.Remove(k)
 }
 
-func initState(paths []string, sc *util.SingleConfig) {
+func initState(paths []string, sc util.SingleConfig) {
 	seekType := getSeekType(sc)
 	for _, v := range paths {
 		if v != "" {
 			f, offset := getFileIns(v, seekType)
 			sm.SetIfAbsent(v, logInfo{
-				Sc:      sc,
+				Sc:      &sc,
 				FileIns: f,
 				Status:  [2]int64{offset, time.Now().Unix()},
 			})
@@ -49,7 +49,7 @@ func getFileIns(p string, seek int) (*os.File, int64) {
 	return nil, 0
 }
 
-func getSeekType(sc *util.SingleConfig) int {
+func getSeekType(sc util.SingleConfig) int {
 	seekType := io.SeekStart
 	if sc.TailFiles {
 		seekType = io.SeekEnd
