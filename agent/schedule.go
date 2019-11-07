@@ -37,8 +37,7 @@ func closeFileHandle(sc util.SingleConfig) {
 	}()
 }
 
-func reScanTask(sc *util.SingleConfig) {
-	freq := sc.ScanFrequency
+func reScanTask(freq int) {
 	if freq < 1 {
 		freq = freqDefault
 	}

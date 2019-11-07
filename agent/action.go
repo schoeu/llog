@@ -27,15 +27,13 @@ func StartAction(c *cli.Context) {
 	inputs := conf.Input
 	for _, v := range inputs {
 		// collect log
-
 		fileGlob(v)
 
 		// close file handle schedule
 		closeFileHandle(v)
-		// watch new log file schedule
 
-		// TODO
-		reScanTask(&v)
+		// watch new log file schedule
+		reScanTask(v.ScanFrequency)
 	}
 
 	// set app name
