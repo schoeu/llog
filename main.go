@@ -17,6 +17,4 @@ func main() {
 	app.Action = agent.StartAction
 	err := app.Run(os.Args)
 	util.ErrHandler(err)
-
-	select {}
 }

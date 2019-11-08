@@ -3,12 +3,12 @@ package agent
 import (
 	"bytes"
 	"context"
-	"github.com/schoeu/llog/config"
 	"net"
 	"net/http"
 	"time"
 
 	"github.com/olivere/elastic/v7"
+	"github.com/schoeu/llog/config"
 	"github.com/schoeu/llog/util"
 )
 

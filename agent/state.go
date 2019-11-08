@@ -1,11 +1,11 @@
 package agent
 
 import (
-	"github.com/schoeu/llog/config"
 	"io"
 	"os"
 	"time"
 
+	"github.com/schoeu/llog/config"
 	"github.com/schoeu/llog/util"
 )
 

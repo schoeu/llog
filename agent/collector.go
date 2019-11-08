@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/schoeu/llog/config"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -12,6 +11,7 @@ import (
 	"time"
 
 	jsoniter "github.com/json-iterator/go"
+	"github.com/schoeu/llog/config"
 	"github.com/schoeu/llog/util"
 )
 
@@ -114,9 +114,7 @@ func lineFilter(k string) func(*[]byte) {
 					}
 				}
 				count++
-				// 匹配多行其他内容
 				if count < maxLines {
-					//logContent.Write(line)
 					buf.Write(line)
 				}
 			} else {

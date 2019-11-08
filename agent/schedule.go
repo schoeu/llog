@@ -2,12 +2,12 @@ package agent
 
 import (
 	"fmt"
-	"github.com/schoeu/llog/config"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/schoeu/gopsinfo"
+	"github.com/schoeu/llog/config"
 	"github.com/schoeu/llog/util"
 )
 

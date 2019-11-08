@@ -1,10 +1,10 @@
 package agent
 
 import (
-	"github.com/schoeu/llog/config"
 	"runtime"
 
 	cmap "github.com/orcaman/concurrent-map"
+	"github.com/schoeu/llog/config"
 	"github.com/schoeu/llog/util"
 	"github.com/urfave/cli"
 )
@@ -37,6 +37,9 @@ func StartAction(c *cli.Context) {
 		reScanTask(v.ScanFrequency)
 	}
 
+	// start watch file
+	go watch(addWatchFile())
+
 	// set app name
 	appName := conf.Name
 	if appName == "" {
@@ -63,9 +66,6 @@ func StartAction(c *cli.Context) {
 		sysInfo(conf.SysInfoDuring)
 	}
 
-	// start watch file
-	watch(addWatchFile())
-
 	if conf.SnapShot.Enable {
 		// take snapshot for file status
 		snd := conf.SnapShot.SnapShotDuring
@@ -80,4 +80,6 @@ func StartAction(c *cli.Context) {
 
 	// debug
 	//debugInfo()
+
+	select {}
 }
