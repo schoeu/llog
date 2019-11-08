@@ -58,17 +58,21 @@ func StartAction(c *cli.Context) {
 	}
 
 	// system info process
-	sysInfo()
+	info := conf.SysInfo
+	if info {
+		sysInfo(conf.SysInfoDuring)
+	}
 
 	// start watch file
-	fsWatcher := addWatchFile()
-
-	// watch file change
-	watch(fsWatcher)
+	watch(addWatchFile())
 
 	if conf.SnapShot.Enable {
 		// take snapshot for file status
-		takeSnap()
+		snd := conf.SnapShot.SnapShotDuring
+		if snd == 0 {
+			snd = snapShotDefault
+		}
+		takeSnap(snd)
 
 		// recover file state
 		recoverState()

@@ -53,9 +53,8 @@ func watch(fsWatcher *fsnotify.Watcher) {
 							offset, err := f.Seek(0, io.SeekCurrent)
 							util.ErrHandler(err)
 							line := bufio.NewReader(f)
-							var content []byte
 							for {
-								content, _, err = line.ReadLine()
+								content, _, err := line.ReadLine()
 								if err == io.EOF {
 									break
 								}

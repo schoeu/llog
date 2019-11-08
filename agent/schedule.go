@@ -53,41 +53,29 @@ func reScanTask(freq int) {
 	}()
 }
 
-func sysInfo() {
-	conf := config.GetConfig()
-	info := conf.SysInfo
-
-	if info {
-		during := conf.SysInfoDuring
-		var psInfo gopsinfo.PsInfo
-		var d time.Duration
-		if during < 1 {
-			d = 1
-		} else if during == 0 {
-			d = 10
-		}
-		ticker := time.NewTicker(d * time.Second)
-		go func() {
-			defer util.Recover()
-			for {
-				<-ticker.C
-
-				psInfo = gopsinfo.GetPsInfo(d)
-				sysData, err := json.Marshal(psInfo)
-				util.ErrHandler(err)
-				doPush(&sysData, systemType, "")
-			}
-		}()
+func sysInfo(during int) {
+	var psInfo gopsinfo.PsInfo
+	var d time.Duration
+	if during < 1 {
+		d = 1
+	} else if during == 0 {
+		d = 10
 	}
+	ticker := time.NewTicker(d * time.Second)
+	go func() {
+		defer util.Recover()
+		for {
+			<-ticker.C
+
+			psInfo = gopsinfo.GetPsInfo(d)
+			sysData, err := json.Marshal(psInfo)
+			util.ErrHandler(err)
+			doPush(&sysData, systemType, "")
+		}
+	}()
 }
 
-func takeSnap() {
-	conf := config.GetConfig()
-	snd := conf.SnapShot.SnapShotDuring
-	if snd == 0 {
-		snd = snapShotDefault
-	}
-
+func takeSnap(snd int) {
 	ticker := time.NewTicker(time.Duration(snd) * time.Second)
 	go func() {
 		defer util.Recover()

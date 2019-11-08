@@ -18,6 +18,8 @@ import (
 type logStruct map[string]string
 
 var apiServer, name string
+var buf = bytes.Buffer{}
+var count = 0
 var maxLinesDefault = 10
 var snapShotDefault = 5
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
@@ -81,9 +83,6 @@ func pathPreProcess(p string) string {
 	}
 	return p
 }
-
-var buf = bytes.Buffer{}
-var count = 0
 
 func lineFilter(k string) func(*[]byte) {
 	fi, err := getLogInfoIns(k)
