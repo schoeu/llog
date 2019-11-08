@@ -59,18 +59,18 @@ input:
   tail_files: true
 
   #检测是否有新增日志文件的频率，默认为10秒
-  scan_frequency: 10
+  scan_frequency: 160
 
   # 最后一次读取文件后，持续时间内没有再写入日志，将关闭文件句柄，默认是 5分钟
-  #close_inactive: 300
+  close_inactive: 30
 
   # 发送自定义字段，默认会放在fields字段下, 当然也可以使用json字符串, 如  '{"a":"b"}'
   #fields: "some field here"
 
   # 多行匹配
-  multiline:
+  #multiline:
     # 多行匹配点
-    pattern: "^normal_log"
+    #pattern: "^normal_log"
     # 最多匹配多少行，默认10
     #max_lines: 10
 
@@ -81,7 +81,8 @@ input:
     pattern: "^error_log"
     # 最多匹配多少行，默认10
     max_lines: 5
-  scan_frequency: 20
+  scan_frequency: 160
+  close_inactive: 30
 
 # 输出配置块:
 output:
@@ -95,7 +96,7 @@ output:
 
   elasticsearch:
     # 是否启用
-    enable: false
+    enable: true
     host: ["http://127.0.0.1:9200/"]
     index: "nma"
     # 输出认证.
