@@ -2,6 +2,7 @@ package agent
 
 import (
 	"fmt"
+	"github.com/schoeu/llog/config"
 	"os"
 	"path/filepath"
 	"time"
@@ -13,7 +14,7 @@ import (
 const aliveTimeDefault = 300
 const freqDefault = 600
 
-func closeFileHandle(sc util.SingleConfig) {
+func closeFileHandle(sc config.SingleConfig) {
 	aliveTime := sc.CloseInactive
 	if aliveTime < 1 {
 		aliveTime = aliveTimeDefault
@@ -53,7 +54,7 @@ func reScanTask(freq int) {
 }
 
 func sysInfo() {
-	conf := util.GetConfig()
+	conf := config.GetConfig()
 	info := conf.SysInfo
 
 	if info {
@@ -81,7 +82,7 @@ func sysInfo() {
 }
 
 func takeSnap() {
-	conf := util.GetConfig()
+	conf := config.GetConfig()
 	snd := conf.SnapShot.SnapShotDuring
 	if snd == 0 {
 		snd = snapShotDefault
@@ -133,7 +134,7 @@ func debugInfo() {
 }
 
 func getSnapPath() string {
-	conf := util.GetConfig()
+	conf := config.GetConfig()
 	snap := conf.SnapShot.SnapshotDir
 	if snap == "" {
 		snap = filepath.Join(util.GetTempDir(), util.SnapshotDir, util.SnapshotFile)
@@ -159,4 +160,12 @@ func stringEqual(a, b []string) bool {
 	}
 
 	return true
+}
+
+func reScan() {
+	inputs := config.GetConfig().Input
+	for _, v := range inputs {
+		// collect log.
+		fileGlob(v)
+	}
 }

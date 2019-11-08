@@ -4,22 +4,15 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"sync"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/schoeu/llog/util"
 )
 
-var once sync.Once
-var fsWatcher *fsnotify.Watcher
-
-func addWatch() {
-	var err error
-	once.Do(func() {
-		fsWatcher, err = fsnotify.NewWatcher()
-		util.ErrHandler(err)
-	})
+func addWatchFile() *fsnotify.Watcher {
+	fsWatcher, err := fsnotify.NewWatcher()
+	util.ErrHandler(err)
 
 	//TODO: defer fsWatcher.Close()
 	for _, v := range sm.Keys() {
@@ -36,22 +29,17 @@ func addWatch() {
 			fmt.Println("[LLOG] watch file: ", v)
 		}
 	}
+
+	return fsWatcher
 }
 
-func watch() {
+func watch(fsWatcher *fsnotify.Watcher) {
 	go func() {
 		defer util.Recover()
 
 		for {
 			select {
 			case ev := <-fsWatcher.Events:
-				// add new file
-				//if ev.Op&fsnotify.Create == fsnotify.Create {
-				//	if ev.Name != "" {
-				//		reScan()
-				//	}
-				//}
-				//change file content
 				if ev.Op&fsnotify.Write == fsnotify.Write {
 					key := ev.Name
 					if key != "" {

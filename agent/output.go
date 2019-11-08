@@ -3,6 +3,7 @@ package agent
 import (
 	"bytes"
 	"context"
+	"github.com/schoeu/llog/config"
 	"net"
 	"net/http"
 	"time"
@@ -57,7 +58,7 @@ func apiPush(data *logStruct) {
 
 // es push.
 func esInit() {
-	output := util.GetConfig().Output
+	output := config.GetConfig().Output
 	esConf := output.Elasticsearch
 	client, err := elastic.NewClient(
 		elastic.SetURL(esConf.Host...),

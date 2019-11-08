@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"github.com/schoeu/llog/config"
 	"runtime"
 
 	cmap "github.com/orcaman/concurrent-map"
@@ -16,8 +17,8 @@ func StartAction(c *cli.Context) {
 	defer util.Recover()
 
 	configFile := util.GetAbsPath(util.GetCwd(), c.Args().First())
-	err := util.InitCfg(configFile)
-	conf := util.GetConfig()
+	err := config.InitCfg(configFile)
+	conf := config.GetConfig()
 	util.ErrHandler(err)
 
 	if conf.MaxProcs != 0 {
@@ -60,10 +61,10 @@ func StartAction(c *cli.Context) {
 	sysInfo()
 
 	// start watch file
-	addWatch()
+	fsWatcher := addWatchFile()
 
 	// watch file change
-	watch()
+	watch(fsWatcher)
 
 	if conf.SnapShot.Enable {
 		// take snapshot for file status
@@ -75,12 +76,4 @@ func StartAction(c *cli.Context) {
 
 	// debug
 	//debugInfo()
-}
-
-func reScan() {
-	inputs := util.GetConfig().Input
-	for _, v := range inputs {
-		// collect log.
-		fileGlob(v)
-	}
 }

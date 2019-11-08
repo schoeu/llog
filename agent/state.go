@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"github.com/schoeu/llog/config"
 	"io"
 	"os"
 	"time"
@@ -9,7 +10,7 @@ import (
 )
 
 type logInfo struct {
-	Sc      *util.SingleConfig
+	Sc      *config.SingleConfig
 	Status  [2]int64
 	FileIns *os.File
 }
@@ -26,7 +27,7 @@ func delInfo(k string) {
 	}
 }
 
-func initState(paths []string, sc util.SingleConfig) {
+func initState(paths []string, sc config.SingleConfig) {
 	seekType := getSeekType(sc)
 	for _, v := range paths {
 		if v != "" {
@@ -51,7 +52,7 @@ func getFileIns(p string, seek int) (*os.File, int64) {
 	return nil, 0
 }
 
-func getSeekType(sc util.SingleConfig) int {
+func getSeekType(sc config.SingleConfig) int {
 	seekType := io.SeekStart
 	if sc.TailFiles {
 		seekType = io.SeekEnd

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/schoeu/llog/config"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -25,7 +26,7 @@ const errorType = "error"
 const normalType = "normal"
 const systemType = "system"
 
-func fileGlob(sc util.SingleConfig) {
+func fileGlob(sc config.SingleConfig) {
 	allLogs := sc.LogDir
 	if len(allLogs) == 0 {
 		logFileDir := util.GetTempDir()

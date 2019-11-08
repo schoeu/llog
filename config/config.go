@@ -1,7 +1,8 @@
-package util
+package config
 
 import (
 	"errors"
+	"github.com/schoeu/llog/util"
 	"io/ioutil"
 
 	"gopkg.in/yaml.v2"
@@ -55,7 +56,7 @@ type Config struct {
 }
 
 func InitCfg(p string) error {
-	p = GetAbsPath(GetCwd(), p)
+	p = util.GetAbsPath(util.GetCwd(), p)
 
 	data, err := ioutil.ReadFile(p)
 	cfg = &Config{}
@@ -67,6 +68,6 @@ func GetConfig() *Config {
 	if cfg != nil {
 		return cfg
 	}
-	ErrHandler(errors.New("config not init"))
+	util.ErrHandler(errors.New("config not init"))
 	return nil
 }
