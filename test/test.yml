@@ -2,7 +2,7 @@
 input:
 
 # 存放各类日志文件的glob匹配路径
-- log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/nm_apps?/*.log"]
+- log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/log_test/*.log"]
   # 在输入中排除符合正则表达式列表的日志行
   #exclude_lines: ["test"]
 
@@ -31,16 +31,6 @@ input:
     # 最多匹配多少行，默认10
     #max_lines: 10
 
-- log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm/*.log"]
-  # 多行匹配
-  multiline:
-    # 多行匹配点
-    pattern: "^error_log"
-    # 最多匹配多少行，默认10
-    max_lines: 5
-  scan_frequency: 160
-  close_inactive: 30
-
 # 输出配置块:
 output:
 
@@ -53,7 +43,7 @@ output:
 
   elasticsearch:
     # 是否启用
-    enable: true
+    enable: false
     host: ["http://127.0.0.1:9200/"]
     index: "nma"
     # 输出认证.

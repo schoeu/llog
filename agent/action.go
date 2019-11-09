@@ -15,8 +15,12 @@ var sm = cmap.New()
 
 func StartAction(c *cli.Context) {
 	defer util.Recover()
+	launch(c.Args().First())
+	select {}
+}
 
-	configFile := util.GetAbsPath(util.GetCwd(), c.Args().First())
+func launch(args string) {
+	configFile := util.GetAbsPath(util.GetCwd(), args)
 	err := config.InitCfg(configFile)
 	conf := config.GetConfig()
 	util.ErrHandler(err)
@@ -80,6 +84,4 @@ func StartAction(c *cli.Context) {
 
 	// debug
 	//debugInfo()
-
-	select {}
 }

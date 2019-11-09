@@ -6,6 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var configPath = "../test/test.yml"
+
 func TestUUID(t *testing.T) {
 	assert.NotEqual(t, UUID(), UUID())
 }
@@ -13,7 +15,7 @@ func TestUUID(t *testing.T) {
 func TestIsInclude(t *testing.T) {
 	pattern := []string{"\\d{4}"}
 	text := []byte("1234")
-	anotherText := []byte("abcd")
+	anotherText := []byte("apple")
 	assert.Equal(t, true, IsInclude(text, pattern))
 	assert.NotEqual(t, true, IsInclude(anotherText, pattern))
 }
@@ -24,13 +26,12 @@ func TestGetTempDir(t *testing.T) {
 }
 
 func TestIsDir(t *testing.T) {
-	p := "/Users/schoeu/Downloads/git/nma"
+	p := GetTempDir()
 	assert.Equal(t, true, IsDir(p))
 }
 
 func TestGetAbsPath(t *testing.T) {
-	p := "./config.test.yml"
-	absPath := GetAbsPath("", p)
+	absPath := GetAbsPath("", configPath)
 	assert.Equal(t, "/", absPath[:1])
 }
 
@@ -40,8 +41,7 @@ func TestGetCwd(t *testing.T) {
 }
 
 func TestPathExist(t *testing.T) {
-	p := "../config.test.yml"
-	ok, err := PathExist(p)
+	ok, err := PathExist(configPath)
 	assert.Empty(t, err)
 	assert.Equal(t, true, ok)
 }
