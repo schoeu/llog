@@ -2,6 +2,7 @@ package agent
 
 import (
 	"runtime"
+	"sync"
 
 	cmap "github.com/orcaman/concurrent-map"
 	"github.com/schoeu/llog/config"
@@ -20,29 +21,54 @@ func StartAction(c *cli.Context) {
 }
 
 func launch(args string) {
+	var once sync.Once
 	configFile := util.GetAbsPath(util.GetCwd(), args)
 	err := config.InitCfg(configFile)
 	conf := config.GetConfig()
 	util.ErrHandler(err)
 
-	if conf.MaxProcs != 0 {
-		runtime.GOMAXPROCS(conf.MaxProcs)
-	}
+	taskInit(conf)
 
 	inputs := conf.Input
 	for _, v := range inputs {
-		// collect log
-		fileGlob(v)
+		types := v.Type
+		if types == "" {
+			types = "log"
+		}
 
-		// close file handle schedule
-		closeFileHandle(v)
+		// type: log
+		if types == "log" {
+			logInput(v)
+			once.Do(func() {
+				// start watch file
+				go watch(addWatchFile())
 
-		// watch new log file schedule
-		reScanTask(v.ScanFrequency)
+				if conf.SnapShot.Enable {
+					// take snapshot for file status
+					snd := conf.SnapShot.SnapShotDuring
+					if snd == 0 {
+						snd = snapShotDefault
+					}
+					takeSnap(snd)
+
+					// recover file state
+					recoverState()
+				}
+			})
+		} else if types == "stdin" {
+			// type: stdin
+			// TODO: stdin process
+		}
 	}
 
-	// start watch file
-	go watch(addWatchFile())
+	// debug
+	//debugInfo()
+}
+
+func taskInit(conf *config.Config) {
+	if conf.MaxProcs != 0 {
+		runtime.GOMAXPROCS(conf.MaxProcs)
+	}
 
 	// set app name
 	appName := conf.Name
@@ -69,19 +95,4 @@ func launch(args string) {
 	if info {
 		sysInfo(conf.SysInfoDuring)
 	}
-
-	if conf.SnapShot.Enable {
-		// take snapshot for file status
-		snd := conf.SnapShot.SnapShotDuring
-		if snd == 0 {
-			snd = snapShotDefault
-		}
-		takeSnap(snd)
-
-		// recover file state
-		recoverState()
-	}
-
-	// debug
-	//debugInfo()
 }

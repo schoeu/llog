@@ -12,7 +12,7 @@ var cfg *Config
 
 type SingleConfig struct {
 	LogDir        []string `yaml:"log_path"`
-	Types         string
+	Type          string
 	Exclude       []string `yaml:"exclude_lines"`
 	Include       []string `yaml:"include_lines"`
 	ExcludeFiles  []string `yaml:"exclude_files"`
