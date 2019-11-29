@@ -154,7 +154,7 @@ nohup ./llog_64bit ./llog_conf.yml >> llog_nohup.log 2>&1 &
 
 ```
 
-## 特性
+## Features
 - [x] get information system (CPU, memory, disk, network)
 - [x] support batch designated log Glob grammar
 - [x] The output support ElasticSearch
@@ -174,4 +174,4 @@ nohup ./llog_64bit ./llog_conf.yml >> llog_nohup.log 2>&1 &
 - [x] support custom fields, is used to retrieve
 - [x] Save the file status
 - [x] Support for multiple sets of independent configuration 
-- [] can be set up log reports the number of threads
+- [ ] can be set up log reports the number of threads
