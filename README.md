@@ -2,14 +2,16 @@
 
 > Lightweight log agent.
 
-## 说明
-1. 超轻量级日志收集，过滤，上报工具。支持glob选取日志，收集日志上报至指定API或ES，后续支持kafka，redis。
-2. 支持filebeat核心功能。
-3. 相同运行环境，监控相同日志，比filebeat占用内存少50%以上。
+[中文文档](./README_zh.md)
 
-测试机器：mac book pro 系统版本：10.14.5  配置：i9/1TB SSD/32G
+## Instructions
+1. Lightwelterweight log collection, filtering, reporting tools.Support glob selected log, collect log report to specify the API or ES, follow-up support kafka, redis.
+2. Support filebeat core functionality.
+3. The same operating environment, monitoring the same logs, more than 50% less than filebeat takes up memory.
 
-|程序|监控文件数|占用内存|线程数|
+Testing machine：macbookpro. system version：10.14.5（i9/1TB SSD/32G）
+
+|name|monitoring file|memory|thread|
 |:--:|:--:|:--:|:--:|
 |llog|4|6.1MB|23|
 |llog|20|6.8MB|34|
@@ -19,126 +21,126 @@
 |filebeat|50|35.3MB|38|
 
 
-4. 一键安装，无依赖。
+4. A key to install, no dependence.
 
-## 安装
+## Install
 
-### 指定配置
+### Specified configuration
 
-#### 1. 下载对应版本LLA
+#### 1. Download the corresponding version
 ``` shell script
-# 下载linux 64 bit
+# download linux 64 bit
 wget http://qiniucdn.schoeu.com/llog_64bit
 
 ```
-或
+Or
 ``` shell script
-# 下载linux 32 bit
+# download linux 32 bit
 wget http://qiniucdn.schoeu.com/llog_32bit
 
 ```
 
-#### 2. 创建配置文件，新建llog_conf.yml文件，内容如下
+#### 2. Create a configuration file, new llog_conf. Yml file, the content is as follows
 
 ``` yaml
-# 日志收集配置块
+# log collection configuration block
 input:
 
-# 存放各类日志文件的glob匹配路径
+# to store all kinds of log file glob matching path
 - log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm_logs/nm_apps?/*.log"]
-  # 在输入中排除符合正则表达式列表的日志行
+  # in the input to exclude conform to the regular expression list of log line
   #exclude_lines: ["test"]
 
-  # 包含输入中符合正则表达式列表的日志行
+  # include conform to the regular expression in the input list log line
   #include_lines: ["^\\w+"]
 
-  # 忽略掉符合正则表达式列表的文件
+  # ignore conform to the regular expression list file
   #exclude_files: ["\\d{4}.log"]
 
-  # 默认为false, 从文件开始处重新发送所有内容。设置为true会从文件尾开始监控文件新增内容把新增的每一行文件进行发送
+  # the default is false, beginning to send all the content from a file.Set to true will from the tail to start monitoring file additions send new files on each line
   tail_files: true
 
-  #检测是否有新增日志文件的频率，默认为10秒
+  #test whether have increased frequency of log files, the default for 10 seconds
   scan_frequency: 160
 
-  # 最后一次读取文件后，持续时间内没有再写入日志，将关闭文件句柄，默认是 5分钟
+  # for the last time, after reading the file last time didn't log, will close the file handle, the default is 5 minutes
   close_inactive: 30
 
-  # 发送自定义字段，默认会放在fields字段下, 当然也可以使用json字符串, 如  '{"a":"b"}'
+  # to send custom fields, the default will be under the fields fields, it can also use a json string, such as' {" a ":" b "} '
   #fields: "some field here"
 
-  # 多行匹配
+  # multi-line matching
   #multiline:
-    # 多行匹配点
+    # multi-line matching points
     #pattern: "^normal_log"
-    # 最多匹配多少行，默认10
+    # up to match how many rows, 10 by default
     #max_lines: 10
 
 - log_path: ["/var/folders/lp/jd6nj9ws5r3br43_y7qw66zw0000gn/T/.nm/*.log"]
-  # 多行匹配
+  # multi-line matching
   multiline:
-    # 多行匹配点
+    # multi-line matching points
     pattern: "^error_log"
-    # 最多匹配多少行，默认10
+    # up to match how many rows, 10 by default
     max_lines: 5
   scan_frequency: 160
   close_inactive: 30
 
-# 输出配置块:
+# output configuration block:
 output:
 
-  # 把收集到的日志发送到指定API
-  # 请求boby中带有JSON数据，以POST方法发送至指定接口
+  # the collected log is sent to a designated API
+  # request with the JSON data in the boby, sending by POST method to specify the interface
   #api_server:
-  # 是否启用
+  # whether to enable
   #enable: false
   #url: "http://127.0.0.1:9200/nma"
 
   elasticsearch:
-    # 是否启用
+    # whether to enable
     enable: true
     host: ["http://127.0.0.1:9200/"]
     index: "nma"
-    # 输出认证.
+    # output certification.
     #username: "admin"
     #password: "s3cr3t"
 
-# 通用配置块
+# general configuration block
 
-# 应用名
+# application name
 #name: "llog"
-# 是否上报系统级别日志（cpu，内存，磁盘，网络）, 默认为false，不上报
+# if system level log (CPU, memory, disk, network), the default is false, is not reported
 #sys_info: true
 
-# 系统信息上报时间间隔，默认为10秒
+# system information reporting time interval, the default for 10 seconds
 #sys_info_during: 10
 
-# 设置最大使用cpu数量, 默认无限制
+# set the maximum use of CPU number, unrestricted by default
 #max_procs: 8
 
-# 文件状态保持配置
+# file status to keep configuration
 #snapshot:
-  # 文件状态开关, 默认不开启
+  # file status switch, default is not open
   #enable: false
 
-  # 文档状态保存，快照当前状态到本地，下次启动会优先使用快照内容
+  # save document status, a snapshot of the current state to a local, a kick-off meeting for next time use snapshot content
   #snapshot_dir: '/path/to/snapshot/file'
 
-  # 定时保存文件状态，默认为5秒
+  # save the file regularly, defaults to 5 seconds
   #snapshot_during: 5
 
 ```
 
-#### 3. 后台启动llog
+#### 3. Start llog in background
 ``` shell script
-# 默认配置启动
+# the default configuration
 nohup ./llog_64bit >> llog_nohup.log 2>&1 &
 
-# 指定配置文件启动
+# specified configuration file
 nohup ./llog_64bit ./llog_conf.yml >> llog_nohup.log 2>&1 &
 ```
 
-## 上报数据格式
+## report data format
 ``` json
 {
     "@logId": "cc621467-b53e-4e76-84b5-5679567c986f",
@@ -153,23 +155,23 @@ nohup ./llog_64bit ./llog_conf.yml >> llog_nohup.log 2>&1 &
 ```
 
 ## 特性
-- [x] 获取系统信息（cpu，内存，磁盘，网络）
-- [x] 支持Glob语法批量指定日志
-- [x] output支持ElasticSearch
-- [x] output支持HTTP API
-- [x] 在输入中排除符合正则表达式列表的日志行
-- [x] 包含输入中符合正则表达式列表的日志行
-- [x] 忽略掉符合正则表达式列表的文件
-- [x] 一次日志事件中最多上传多少个字符
-- [x] 更换配置文件为yaml
-- [x] API, ES请求Timeout设置
-- [x] 多行日志匹配，一般用于错误堆栈信息收集
-- [x] 多行日志匹配限制行上限
-- [x] 可配置从日志文件起始或尾部进行日志监听
-- [x] 新增文件检测
-- [x] 自动关闭长期不活动文件句柄
-- [x] 可限制cpu最多使用核数
-- [x] 支持自定义字段，用于检索
-- [x] 保存文件状态
-- [x] 支持多套独立配置
-- [ ] 可设置日志上报线程数
+- [x] get information system (CPU, memory, disk, network)
+- [x] support batch designated log Glob grammar
+- [x] The output support ElasticSearch
+- [x] The output support HTTP API
+- [x] in input to exclude the regular expression list of log line
+- [x] a list in line with the regular expression in the input of the log line
+- [x] ignore the regular expression list file
+- [x] upload at most how many characters in a log event
+- [x] replacement for yaml configuration file
+- [x] API, ES request Timeout Settings
+- [x] log multi-line matching, commonly used in error stack information collection
+- [x] log multi-line matching maximum limit line
+- [x] can be configured from the log file starting or tail log monitor
+- [x] add file test
+- [x] automatically shut down long-term inactive file handle
+- [x] can limit the CPU use auditing at most
+- [x] support custom fields, is used to retrieve
+- [x] Save the file status
+- [x] Support for multiple sets of independent configuration 
+- [] can be set up log reports the number of threads
