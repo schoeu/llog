@@ -3,13 +3,13 @@ package agent
 import (
 	"errors"
 	"fmt"
-	"github.com/schoeu/llog/config"
 	"net"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/olivere/elastic/v7"
+	"github.com/schoeu/llog/config"
 	"github.com/schoeu/llog/util"
 )
 
@@ -33,7 +33,7 @@ func filter(include, exclude []string, line []byte, max int) (bool, *[]byte) {
 }
 
 func doPush(text *[]byte, types, fields string) {
-	// 日志签名
+	// log signature
 	var rs = logStruct{
 		"@message":    string(*text),
 		"@version":    util.Version,
@@ -80,6 +80,7 @@ func getClint() *http.Client {
 			ResponseHeaderTimeout: time.Second * 90,
 		},
 	}
+	fmt.Printf("[LLOG] API server have been initialized, API: %s\n", apiServer)
 	return client
 }
 
@@ -96,5 +97,6 @@ func esInit() {
 	esIndex = esConf.Index
 	if esIndex != "" {
 		indexServer = client.Index().Index(esIndex)
+		fmt.Printf("[LLOG] Elasticsearch client have been initialized, host: %s, index: %s\n", esConf.Host, esConf.Index)
 	}
 }

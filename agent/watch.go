@@ -7,12 +7,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/fsnotify/fsnotify"
+	fs "github.com/fsnotify/fsnotify"
 	"github.com/schoeu/llog/util"
 )
 
-func addWatchFile() *fsnotify.Watcher {
-	fsWatcher, err := fsnotify.NewWatcher()
+func addWatchFile() *fs.Watcher {
+	fsWatcher, err := fs.NewWatcher()
 	util.ErrHandler(err)
 
 	//TODO: defer fsWatcher.Close()
@@ -39,13 +39,13 @@ func addWatchFile() *fsnotify.Watcher {
 	return fsWatcher
 }
 
-func watch(fsWatcher *fsnotify.Watcher) {
+func watch(fsWatcher *fs.Watcher) {
 	defer util.Recover()
 
 	for {
 		select {
 		case ev := <-fsWatcher.Events:
-			if ev.Op&fsnotify.Write == fsnotify.Write {
+			if ev.Op&fs.Write == fs.Write {
 				key := ev.Name
 				if key != "" {
 					fi, err := getLogInfoIns(key)
@@ -80,13 +80,13 @@ func watch(fsWatcher *fsnotify.Watcher) {
 				}
 			}
 			// remove log file
-			if ev.Op&fsnotify.Remove == fsnotify.Remove {
+			if ev.Op&fs.Remove == fs.Remove {
 				if ev.Name != "" {
 					delInfo(ev.Name)
 				}
 			}
 			// rename log file
-			if ev.Op&fsnotify.Rename == fsnotify.Rename {
+			if ev.Op&fs.Rename == fs.Rename {
 				if ev.Name != "" {
 					reScan()
 				}

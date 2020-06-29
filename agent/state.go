@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"time"
@@ -16,14 +17,15 @@ type logInfo struct {
 }
 
 func delInfo(k string) {
-	li, err := getLogInfoIns(k)
-	util.ErrHandler(err)
-	if li != nil && li.FileIns != nil {
-		err := li.FileIns.Close()
-		util.ErrHandler(err)
-	}
 	if sm.Has(k) {
+		li, err := getLogInfoIns(k)
+		util.ErrHandler(err)
+		if li != nil && li.FileIns != nil {
+			err := li.FileIns.Close()
+			util.ErrHandler(err)
+		}
 		sm.Remove(k)
+		fmt.Println("[LLOG] stop watch: ", k)
 	}
 }
 

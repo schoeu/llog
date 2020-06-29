@@ -3,9 +3,9 @@ package agent
 import (
 	"bytes"
 	"context"
+	"net/http"
 
 	"github.com/schoeu/llog/util"
-	"net/http"
 )
 
 func apiPush(data *logStruct) {

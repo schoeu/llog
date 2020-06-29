@@ -19,7 +19,7 @@ func closeFileHandle(sc config.SingleConfig) {
 	if aliveTime < 1 {
 		aliveTime = aliveTimeDefault
 	}
-	ticker := time.NewTicker(time.Duration(aliveTime) * time.Second)
+	ticker := time.NewTicker(time.Duration(aliveTime*60) * time.Second)
 
 	go func() {
 		defer util.Recover()
@@ -30,7 +30,6 @@ func closeFileHandle(sc config.SingleConfig) {
 				li, err := getLogInfoIns(v)
 				util.ErrHandler(err)
 				if li != nil && stringEqual(li.Sc.LogDir, sc.LogDir) && time.Since(time.Unix(li.Status[1], 0)) > time.Second*time.Duration(aliveTime) {
-					fmt.Println("[LLOG] stop watch: ", v)
 					delInfo(v)
 				}
 			}
@@ -107,16 +106,17 @@ func takeSnap(snd int) {
 }
 
 func debugInfo() {
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(2 * time.Second)
 	go func() {
 		defer util.Recover()
 		for {
 			<-ticker.C
-			for k, v := range sm.Items() {
-				val := v.(logInfo)
-				fmt.Println("[LLOG]", k, val.Sc)
-			}
-			fmt.Println("[LLOG]", sm.Keys())
+			//for k, v := range sm.Items() {
+			//	val := v.(logInfo)
+			//	fmt.Println("[LLOG]", k, val.Sc)
+			//}
+			//fmt.Println("[LLOG]", sm.Keys())
+			fmt.Fprint(os.Stdin, "xx\n")
 		}
 	}()
 }

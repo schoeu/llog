@@ -1,6 +1,12 @@
 package agent
 
-import "github.com/schoeu/llog/config"
+import (
+	"bufio"
+	"fmt"
+	"os"
+
+	"github.com/schoeu/llog/config"
+)
 
 func logInput(sc config.SingleConfig) {
 	// collect log
@@ -13,6 +19,14 @@ func logInput(sc config.SingleConfig) {
 	reScanTask(sc.ScanFrequency)
 }
 
-func stdInput(sc config.SingleConfig) {
-
+func stdInput() {
+	bio := bufio.NewReader(os.Stdin)
+	fmt.Println("before")
+	for {
+		content, _ := bio.ReadString('\n')
+		fmt.Println(content)
+		if content != "" {
+			fmt.Println("stdin", string(content))
+		}
+	}
 }

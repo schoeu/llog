@@ -3,12 +3,13 @@ package agent
 import (
 	"bytes"
 	"fmt"
-	jsoniter "github.com/json-iterator/go"
-	"github.com/schoeu/llog/config"
-	"github.com/schoeu/llog/util"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	jsoniter "github.com/json-iterator/go"
+	"github.com/schoeu/llog/config"
+	"github.com/schoeu/llog/util"
 )
 
 type logStruct map[string]string
@@ -39,7 +40,6 @@ func fileGlob(sc config.SingleConfig) {
 		if len(p) > 0 {
 			initState(p, sc)
 		}
-		// update file state.
 	}
 }
 
@@ -95,6 +95,7 @@ func lineFilter(k string) func(*[]byte) {
 
 		return func(l *[]byte) {
 			line := *l
+			// fmt.Println(string(line))
 			// multiple mode
 			if multiline != "" {
 				// multiple head line

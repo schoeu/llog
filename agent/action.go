@@ -29,6 +29,9 @@ func launch(args string) {
 
 	taskInit(conf)
 
+	// debug
+	//debugInfo()
+
 	inputs := conf.Input
 	for _, v := range inputs {
 		types := v.Type
@@ -57,12 +60,9 @@ func launch(args string) {
 			})
 		} else if types == "stdin" {
 			// type: stdin
-			// TODO: stdin process
+			stdInput()
 		}
 	}
-
-	// debug
-	//debugInfo()
 }
 
 func taskInit(conf *config.Config) {
