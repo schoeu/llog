@@ -2,17 +2,15 @@ package agent
 
 import (
 	"fmt"
-	"io"
-	"os"
-	"time"
-
 	"github.com/schoeu/llog/config"
 	"github.com/schoeu/llog/util"
+	"io"
+	"os"
 )
 
 type logInfo struct {
 	Sc      *config.SingleConfig
-	Status  [2]int64
+	Status  int64
 	FileIns *os.File
 }
 
@@ -37,7 +35,7 @@ func initState(paths []string, sc config.SingleConfig) {
 			sm.SetIfAbsent(v, logInfo{
 				Sc:      &sc,
 				FileIns: f,
-				Status:  [2]int64{offset, time.Now().Unix()},
+				Status:  offset,
 			})
 		}
 	}

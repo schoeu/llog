@@ -59,10 +59,10 @@ input:
   tail_files: true
 
   #检测是否有新增日志文件的频率，默认为10秒
-  scan_frequency: 160
+  scan_frequency: 10
 
   # 最后一次读取文件后，持续时间内没有再写入日志，将关闭文件句柄，默认是 5分钟
-  close_inactive: 30
+  close_inactive: 300
 
   # 发送自定义字段，默认会放在fields字段下, 当然也可以使用json字符串, 如  '{"a":"b"}'
   #fields: "some field here"

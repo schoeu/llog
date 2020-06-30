@@ -95,7 +95,7 @@ func lineFilter(k string) func(*[]byte) {
 
 		return func(l *[]byte) {
 			line := *l
-			// fmt.Println(string(line))
+			fmt.Println(string(line))
 			// multiple mode
 			if multiline != "" {
 				// multiple head line

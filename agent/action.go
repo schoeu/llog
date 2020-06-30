@@ -10,7 +10,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-type storeState map[string][2]int64
+type storeState map[string]int64
 
 var sm = cmap.New()
 

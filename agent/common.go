@@ -95,8 +95,9 @@ func esInit() {
 	)
 	util.ErrHandler(err)
 	esIndex = esConf.Index
+	indexServer = client.Index()
 	if esIndex != "" {
-		indexServer = client.Index().Index(esIndex)
-		fmt.Printf("[LLOG] Elasticsearch client have been initialized, host: %s, index: %s\n", esConf.Host, esConf.Index)
+		indexServer = indexServer.Index(esIndex)
 	}
+	fmt.Printf("[LLOG] Elasticsearch client have been initialized, host: %s, index: %s\n", esConf.Host, esIndex)
 }

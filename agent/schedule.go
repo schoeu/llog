@@ -19,7 +19,7 @@ func closeFileHandle(sc config.SingleConfig) {
 	if aliveTime < 1 {
 		aliveTime = aliveTimeDefault
 	}
-	ticker := time.NewTicker(time.Duration(aliveTime*60) * time.Second)
+	ticker := time.NewTicker(time.Duration(aliveTime) * time.Second)
 
 	go func() {
 		defer util.Recover()
@@ -29,7 +29,8 @@ func closeFileHandle(sc config.SingleConfig) {
 			for _, v := range sm.Keys() {
 				li, err := getLogInfoIns(v)
 				util.ErrHandler(err)
-				if li != nil && stringEqual(li.Sc.LogDir, sc.LogDir) && time.Since(time.Unix(li.Status[1], 0)) > time.Second*time.Duration(aliveTime) {
+				udpTime := util.GetFileModTime(li.FileIns)
+				if li != nil && stringEqual(li.Sc.LogDir, sc.LogDir) && time.Since(time.Unix(udpTime, 0)) > time.Second*time.Duration(aliveTime) {
 					delInfo(v)
 				}
 			}

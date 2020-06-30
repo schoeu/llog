@@ -61,10 +61,10 @@ input:
   tail_files: true
 
   #test whether have increased frequency of log files, the default for 10 seconds
-  scan_frequency: 160
+  scan_frequency: 10
 
   # for the last time, after reading the file last time didn't log, will close the file handle, the default is 5 minutes
-  close_inactive: 30
+  close_inactive: 300
 
   # to send custom fields, the default will be under the fields fields, it can also use a json string, such as' {" a ":" b "} '
   #fields: "some field here"

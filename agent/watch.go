@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"time"
 
 	fs "github.com/fsnotify/fsnotify"
 	"github.com/schoeu/llog/util"
@@ -71,7 +70,7 @@ func watch(fsWatcher *fs.Watcher) {
 						if err == io.EOF {
 							sm.Set(key, logInfo{
 								Sc:      fi.Sc,
-								Status:  [2]int64{offset + int64(count+1), time.Now().Unix()},
+								Status:  offset + int64(count+1),
 								FileIns: f,
 							})
 							continue

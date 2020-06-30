@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"time"
 
 	"github.com/satori/go.uuid"
 )
@@ -74,4 +75,13 @@ func Recover() {
 	if err := recover(); err != nil {
 		fmt.Println(err)
 	}
+}
+
+func GetFileModTime(f *os.File) int64 {
+	fi, err := f.Stat()
+	if err != nil {
+		return time.Now().Unix()
+	}
+
+	return fi.ModTime().Unix()
 }
