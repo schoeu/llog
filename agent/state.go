@@ -2,10 +2,11 @@ package agent
 
 import (
 	"fmt"
-	"github.com/schoeu/llog/config"
-	"github.com/schoeu/llog/util"
 	"io"
 	"os"
+
+	"github.com/schoeu/llog/config"
+	"github.com/schoeu/llog/util"
 )
 
 type logInfo struct {

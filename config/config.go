@@ -2,9 +2,9 @@ package config
 
 import (
 	"errors"
-	"github.com/schoeu/llog/util"
 	"io/ioutil"
 
+	"github.com/schoeu/llog/util"
 	"gopkg.in/yaml.v2"
 )
 
